@@ -82,7 +82,6 @@ router.get('/admin-panel/reflections', (req, res) => {
 router.get('/admin-panel/reflections/:page', ruminationController.pagination);
 
 var chatController = require('../controllers/chatController');
-const { updateOne } = require('../models/Rumination');
 router.get('/admin-panel/talks', chatController.get_chatbox);
 
 

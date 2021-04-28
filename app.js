@@ -45,9 +45,9 @@ connection.on('error', () => {
 
 
 //applications routes
-// var routes = require('./routes/configs.js');
-// app.use('/', routes);
-app.get('/', (req, res) => res.send("hello there hope this should be faster"))
+var routes = require('./routes/configs.js');
+app.use('/', routes);
+
 
 
 const httpServer = app.listen(app.get('port'), () => {
