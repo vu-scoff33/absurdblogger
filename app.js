@@ -3,10 +3,12 @@ var Handlebars = require('express-handlebars');
 var mongoose = require('mongoose')
 require('dotenv').config();
 
+
 //testingFeatures for console //console testing
 //require('./socketio/punGen/index');
 
 var app = express();
+console.log(process.env.PORT)
 app.set('port', process.env.PORT || 3000);
 //middlewares
 var cookieParser = require('cookie-parser');
@@ -25,6 +27,7 @@ var hbs = Handlebars.create({
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 
+console.log("App.js Logging out dburl ", process.env.DBurl)
 //set database, mongoose
 mongoose.connect(
     process.env.DBurl, 
