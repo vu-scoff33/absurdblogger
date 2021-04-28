@@ -39,8 +39,8 @@ Mastermind.find((err, results) => {
        return;
     }
     
-    const admin_username = process.env.CMSusername;
-    const admin_password = process.env.CMSpassword;
+    const admin_username = "lnvulture";
+    const admin_password = "iamworthy";
     const admin_role = "Mastermind"
     bcrypt.hash(admin_password, saltrounds, (err, hash) => {
         new Mastermind({
