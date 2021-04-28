@@ -1,0 +1,55 @@
+body, html{
+    height: 100vh;
+    margin: 0;
+}
+#wrapper{
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    overflow: auto;
+}
+#identification{
+    width: 50%;
+    margin: 60px auto;
+    position: relative;
+}
+#identification input{
+    width: 100%;
+    
+}
+#identification label{
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: all 0.2s;
+    cursor: text;
+}
+#identification input:focus + label { 
+    font-size: 0.8rem;
+    top: -100%;
+}
+#identification input:not(focus):valid + label {
+    font-size: 0.8rem;
+    top: -100%;
+}
+
+/* chat box */
+#chatbox{
+    display: none;
+    height: 100%;
+    flex-direction: column;
+    border-left: 1px solid grey;
+    border-right: 1px solid grey;
+}
+#chatbox #message-input{
+    
+}
+#chatbox #messages{
+    flex-grow: 1;
+    border-top: 1px solid grey;
+    overflow: auto;
+}
+#chatbox #display-name{
+    font-size: 1.3rem;
+    text-align: center;
+}

@@ -1,0 +1,75 @@
+#chatbox-wrapper{
+    display: flex;
+    flex-direction: row;
+
+    height: 100%;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+#users-box{
+    overflow: auto;
+    width: 250px;
+    border-right: 1px solid rgb(161, 158, 158);
+}
+#users-box::before{
+    content: "The Common Sheep";
+    display: block;
+    border-bottom: 1px solid grey;
+    background-color: rgb(161, 161, 161);
+    color: black;
+    width: 100%;
+    line-height: 40px;
+    font-weight: bold;
+    text-align: center;
+}
+#users-box > button{
+    color: black;
+    width: 100%;
+    background: none;
+    outline: none;
+    border: none;
+    border-bottom: 1px solid rgb(155, 154, 154);
+    text-align: center;
+    height: 60px;
+    font-style: italic;
+    cursor: pointer;
+}
+#users-box > button.active{
+    background-color: rgb(212, 211, 211);
+}
+#users-box > button:hover{
+    background-color: rgb(212, 212, 212);
+}
+
+#messages-box{
+    flex-grow: 1;
+    padding: 0;
+    position: relative;
+    height: 100%;
+}
+#messages-box #empty-messages{
+    color:rgb(155, 154, 154);
+    font-size: 30px;
+    background-color: transparent;
+    border: none;
+    position: absolute; 
+    top: 50%;
+    left: 50%;
+    margin-left: auto;
+    transform: translateY(-50%) translateX(-50%) rotate(45deg);
+}
+
+#messages-box #happy-messages{
+    display: none;
+    flex-direction: column;
+    height: 100%;
+}
+#messages{
+    flex-grow: 1;
+    height: 100%;
+    overflow: auto;
+}
+
+

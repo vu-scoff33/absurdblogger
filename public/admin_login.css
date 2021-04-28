@@ -1,0 +1,35 @@
+/* one of an earliest file, do I need to refactor the selectors name */ 
+
+.container {
+    position: relative;
+    min-height: 400px;
+}
+h4 {
+    color: rgb(49, 135, 247);
+    margin-bottom: 30px;
+}
+
+button {
+    margin-top: 5px;
+}
+
+form {
+    width: 400px;
+    margin: 0 auto;
+    position: absolute;
+    top: 20%;
+    left: 0;
+    bottom: 0;
+    right: 0;
+
+    text-align: center;
+    padding: 20px 20px 10px 20px;
+}
+#invalidMessage{
+    display: none
+}
+#invalidMessage.isInvalid{
+    display: block;
+    font-style: italic;
+    color: red;
+}

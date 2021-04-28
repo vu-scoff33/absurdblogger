@@ -1,0 +1,55 @@
+var RandomInspiration = require('./RandomInspiration.js');
+var Rumination = require('./Rumination')
+var Mastermind = require('./Mastermind');
+const bcrypt = require('bcrypt');
+const saltrounds = 10; //wtf 
+
+RandomInspiration.find(function(err, results){
+    if(results.length)  return;
+    //dig deeper to the heart/philosophy of this syntax
+    //of (mongoose), or (nodejs), or (js), or (oop)
+    
+    new RandomInspiration ({
+        content: "The unexamined life is not worth living.",
+        author: "Socrates"
+    }).save();
+    new RandomInspiration({
+        content: "The life of a man (in a state of nature) is solitary, poor, nasty, brutish, and short",
+        author: "Thomas Hobbes"
+    }).save();
+    new RandomInspiration({
+        content: "I think therefore I am.",
+        author: "Rene Descartes"
+    }).save();
+    new RandomInspiration({
+        content: "He who thinks great thoughts, often makes great errors.",
+        author: "Martin Heidegger"
+    }).save();
+    new RandomInspiration({
+        content: "To be is to be perceived.",
+        author: "Bishop George Berkeley"
+    }).save();
+})
+
+
+Mastermind.find((err, results) => {
+    if(results.length) {
+       return;
+    }
+    
+    const admin_username = process.env.CMSusername;
+    const admin_password = process.env.CMSpassword;
+    const admin_role = "Mastermind"
+    bcrypt.hash(admin_password, saltrounds, (err, hash) => {
+        new Mastermind({
+            username: admin_username,
+            hashedPassword: hash,
+            role: admin_role
+        }).save((err) => {
+            if(err) console.log(err)
+        });
+    })
+})
+
+
+

@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Cookie&display=swap');
+
+/* https://colorpalettes.net/color-palette-3413/ */
+
+#absurd-blockquote-wrapper {
+    display: flex;
+    height: 100%;
+    background-color: #dbd9e8;
+}
+#absurd-blockquote-card{
+    position: relative;
+    align-self: center;
+    margin: auto;
+    text-align: center;
+    padding: 1rem;
+    max-width: 70%;
+
+    background-color: #cab3e6;
+    border-radius: 10px;
+    border-width: 1px;
+
+    text-align: center;
+}
+#absurd-blockquote-card p{
+    font-family: Cookie, cursive;
+    font-size: 40px;
+    color: #7a3776;
+    
+}
+#absurd-blockquote-card footer{
+    font-size: 20px;
+    text-align: right;
+    font-style: italic;
+    color: #af7bbd;
+}
+
+#absurd-blockquote-card #absurd-blockquote-operators {
+    display: flex;
+    flex-flow: column nowrap;
+    
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    transition: transform 0.4s cubic-bezier(0.075, 0.82, 0.165, 1);
+    padding-left: 2px;
+
+    visibility: hidden;
+}
+
+#absurd-blockquote-operators > button {
+    color: white;
+    background-color: #7a3776;
+    margin-bottom: 3px;
+}
+#absurd-blockquote-operators > button:hover {
+    color: #7a3776;
+    background-color: white;
+}
+
+#absurd-blockquote-card:hover #absurd-blockquote-operators {
+    visibility: visible;
+    transform: translate(100%, 0);
+}
+
+/* custom modal class */
+.fade-scale {
+    transform: scale(0);
+    opacity: 0;
+    transition: all 0.25s linear;
+}
+.fade-scale.show{
+    transform: scale(1);
+    opacity: 1;
+}

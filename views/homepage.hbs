@@ -1,0 +1,270 @@
+<div id="cards-container">
+    <div class="story-card top" id="{{ruminations.[0].id}}">
+        <div class="story-card-front">
+            {{#if ruminations.[0].cover_id}}
+            <div class="spinner">
+                <i class="fas fa-spinner fa-spin fa-3x"></i>
+            </div>
+            <img src="/covers/{{ruminations.[0].cover_id}}">
+            {{else}}
+            <img src="/public/images/noimage.png"/>
+            {{/if}}
+        </div>
+
+        <div class="story-card-back" style="background-color: {{initColor_1}};">
+            <div class="content-container children-of-back">
+                <h3 class="title">{{{ruminations.[0].title}}}</h3>
+                <article>
+                    {{{ruminations.[0].content}}}
+                </article>
+            </div>
+            <button class="comments-button children-of-back"><span class="hellip">...</span></button>
+            <div class="comments-container children-of-back" data-toggle="modal" data-target="#commentModal">
+                {{#each comments}}
+                    <blockquote class="blockquote">
+                        <p>{{this.comment}}</p>
+                        <span class="blockquote-footer">{{this.signature}}</span>
+                    </blockquote>
+                {{else}}
+                    <p class="empty">No Comments Yet :(</p>
+                {{/each}}
+            </div>
+        </div>
+    </div>
+
+    <div class="story-card bottom" id="{{ruminations.[1].id}}">
+        <div class="story-card-front">
+            {{#if ruminations.[1].cover_id}}
+            <div class="spinner">
+                <i class="fas fa-spinner fa-spin fa-3x"></i>
+            </div>
+            <img src="/covers/{{ruminations.[1].cover_id}}">
+            {{else}}
+            <img src="/public/images/noimage.png"/>
+            {{/if}}
+        </div>
+
+        <div class="story-card-back" style="background-color: {{initColor_2}};">
+            <div class="content-container children-of-back">
+                <h3 class="title">{{{ruminations.[1].title}}}</h3>
+                <article>
+                    {{{ruminations.[1].content}}}
+                </article>
+            </div>
+            <button class="comments-button children-of-back"><span class="hellip">...</span></button>
+            <div class="comments-container children-of-back" data-toggle="modal" data-target="#commentModal">
+                {{#each comments}}
+                    <blockquote class="blockquote">
+                        <p>{{this.comment}}</p>
+                        <span class="blockquote-footer">{{this.signature}}</span>
+                    </blockquote>
+                {{else}}
+                    <p class="empty">No Comments Yet :(</p>
+                {{/each}}
+            </div>
+        </div>
+    </div>
+    
+    <div class="tools-of-minimalism tools-buttons">
+        <button id="dislike">&#10006;</button>
+        <button id="like">&#10004;</button>
+    </div>
+</div>
+
+{{#section 'jquery'}}
+    <script>
+        const TRANSFORM_MAPS = {
+            'dislike': 'to-left',
+            'like': 'to-right'
+        }
+        const FETCH_THRESHOLD = 2;
+        const genColorScheme = function(){
+            const POSSIBILITIES = [
+                "rgb(93, 201, 122)", "rgb(207, 219, 92)", "rgb(116, 120, 237)", "rgb(141, 99, 212)", "rgb(187, 89, 207)",
+                "rgb(235, 56, 95)", "rgb(219, 146, 77)", "rgb(86, 81, 232)"
+            ];
+            let r = Math.floor(Math.random() * POSSIBILITIES.length);
+            return POSSIBILITIES[r];
+        }
+        var fetchRuminations, prepareNextCard, smoothAutoScroll, blockquoteTemplate, coverTemplate;
+        var ruminations = [];
+        var clickedBuffer = false;
+        const syncColor = function(){
+            let colorOnTop = $(".story-card.top .story-card-back").css("background-color");
+            $('.tools-buttons button').css("background-color", colorOnTop)
+        }
+        const startScrollInterval = function(){
+            let target = document.querySelector('.story-card.top .comments-container');
+            target.scrollTop = 0;
+            smoothAutoScroll = setInterval(function(){
+                target.scrollBy(0, 1.3)
+            }, 16.7)
+        }
+        const clearScrollInterval = function(){
+            clearInterval(smoothAutoScroll)
+        }
+
+        const init = function(){
+            syncColor();
+            fetchRuminations();
+        }
+        $(window).on('load', init);
+        $(".tools-buttons button").on('click', function(event){
+            //$Refactor: the consumption rate is currently suppresed enough for the duration of fetching
+            //--> resources are never in drought. To refactor: handle exceptions loading screen when consumption 
+            //comes in massive bulks
+
+            //$$to-refactor: like & dislike dbSystem
+            if(!clickedBuffer){
+                clickedBuffer = true; //avoid executing function in case of rapid clicking
+                //console.log("This is the Click function")
+                let id = event.target.id;
+                $('.story-card.top').addClass(TRANSFORM_MAPS[id]);
+                $('.story-card.bottom').addClass('to-top');
+
+                setTimeout(function(){
+                    //Animation done, reverse roles of top & bottom
+                    //console.log("Starting of the inner function settimeout")
+                    $('.story-card').addClass('notransition');
+                    //temporarily disable transition when removing class. Loose fix for rapid clickingBastard
+                    $('.story-card').toggleClass('top bottom').removeClass('to-left to-right to-top');
+                    syncColor();
+                    if(ruminations.length == FETCH_THRESHOLD)   
+                        fetchRuminations();
+                    prepareNextCard();
+                    //console.log("Current State of Arrays: ", ruminations)
+                }, 400);
+
+                setTimeout(function(){
+                    $('.story-card').removeClass('notransition');     
+                    clickedBuffer = false;   //end of clicker          
+                }, 450)
+            }
+        })
+
+        $('.story-card-back .comments-button').on('click', function(event){
+            $(this).data('isThru', true);
+        })
+        $('.story-card-back .comments-container').on('click', function(event){
+            $(this).data('isThru', true);
+        })
+        $(document).on('click', function(event){
+            //active cards' utilities
+            let $button = $('.story-card.top .comments-button'); 
+            let $container = $('.story-card.top .comments-container');
+
+            if($button.data('isThru')){
+                $button.toggleClass('show');
+                $container.toggleClass('show');
+                if($container.hasClass('show'))
+                    startScrollInterval()
+            }
+            if($container.data('isThru')){
+                //$('#commentModal').modal('show'), manually launches modal disables event.relatedTarget
+            }
+            if(!($button.data('isThru') || $container.data('isThru')) ){
+                $button.removeClass('show');
+                $container.removeClass('show')
+                clearScrollInterval()
+            }
+            //the end & reset
+            $button.data('isThru', false);
+            $container.data('isThru', false)
+        })
+        $('#commentModal').on('show.bs.modal', function(event){
+            let ruminationId = $(event.relatedTarget).parents('.story-card.top').attr('id')
+            //%%.story-card.top??
+            $(this).find(".debug").text(ruminationId);
+            $(this).find("#commentForm").data("ruminationId", ruminationId);
+            $('#commentModal').on("hide.bs.modal", function(event){
+                $(this).find('#commentForm').removeData();
+            })
+        })
+        $('#commentModal').on("submit", 'form#commentForm', function(event){
+            event.preventDefault();
+            const data = {
+                id: $('form#commentForm').data('ruminationId'),
+                comment: $('form#commentForm').find("input#comment").val(),
+                signature: $('form#commentForm').find("input#signature").val()
+            }
+            $('form#commentForm').removeData();
+            fetch('/ajax/ruminations/comment', {
+                method: "POST", 
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            }).then(res => {
+                location.reload();
+            }).catch(err => {
+                console.log(err)
+            })
+            //$$to-refactor: reflect rumination comment
+        })
+
+
+        fetchRuminations = function(){
+            //console.log("Fetching! at ", ruminations.length);
+            fetch('/ajax/ruminations', {
+            method: "GET",
+            headers: {
+                'Accept': 'application/json'
+            }
+            })
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(r => ruminations.push(r))
+                console.log(ruminations)
+            })
+        }
+        prepareNextCard = function(){
+            let nextRumination = ruminations.shift();
+            //exception $to-refactor: initial fetch is can take longer than nextButton
+            console.log(nextRumination)
+            let nextColor = genColorScheme();
+            let $next = $('.story-card.bottom');
+
+            $next.attr("id", nextRumination.id);
+            $next.find('.story-card-back').css('background-color', nextColor);
+            $next.find('.story-card-back .title').html(nextRumination.title);
+            $next.find('.story-card-back article').html(nextRumination.content);
+
+            $commentsContainer = $next.find('.story-card-back .comments-container');
+            $commentsContainer.text('');
+            const emptyComments = `<p class="empty">No Comments Yet :(</p>`
+            if(nextRumination.comments.length == 0)
+                $commentsContainer.html(emptyComments)
+            else{
+                nextRumination.comments.forEach(cmt => {
+                    $commentsContainer.prepend(blockquoteTemplate(cmt.comment, cmt.signature))
+                })
+            }
+
+            $front = $next.find('.story-card-front')
+            console.log(nextRumination.cover_id)
+            if(nextRumination.cover_id)
+                $front.html(coverTemplate(nextRumination.cover_id))
+            else
+                $front.html(coverTemplate())
+        }
+        blockquoteTemplate = function(comment, signature){
+            const ret = ` <blockquote class="blockquote"> 
+                <p>${comment}</p>
+                <span class="blockquote-footer">${signature}</span>
+            </blockquote> `
+            return ret;
+        }
+        coverTemplate = function(cover_id){
+            if(!cover_id)
+                return `<img src="/public/images/noimage.png">`
+            console.log("here having a conver id")
+            const ret = `
+                <div class="spinner">
+                    <i class="fas fa-spinner fa-spin fa-3x"></i>
+                </div>
+                <img src="/covers/${cover_id}" >
+            `
+            return ret
+        }
+    </script>
+{{/section}}

@@ -1,0 +1,56 @@
+<div id="mce-wrapper">
+    <textarea id="mce-editor"></textarea>
+</div>
+
+{{#section 'script'}}
+    <script type="text/javascript">
+        var mceEditField = "{{{content}}}";
+        var id = "{{{id}}}";
+
+        $('#mce-editor').tinymce({
+            auto_focus: "mce-editor", 
+            height: "100%", 
+            width: "100%",
+            menubar: false, 
+            statusbar: false, 
+            setup: function(editor){
+                editor.on('init', (event) => {
+                    editor.setContent(mceEditField);
+                })
+            }
+        })
+
+
+        $('#publish-button').on("click", function(){
+            var isValidData = dumb_dataValidation();
+            if(isValidData){
+                const {title, content, description, tags, image} = isValidData;
+                let formData = new FormData();
+                //query string
+                formData.append("id", id)
+                formData.append('title', title);
+                formData.append('content', content);
+                formData.append('description', description);
+                formData.append("tags", tags);
+                formData.append('cover', image);
+                formData.append('date', new Date());
+                
+                $(this).prop("disabled", true);
+                $(this).text("Updating...");
+
+                fetch("/admin-panel/rumination/update", {
+                    method: "POST",
+                    headers: {
+                        //multipart/form-data
+                    },
+                    body: formData, 
+                    redirect: 'follow'
+                }).then(res => {
+                    if(res.status === 500)  $('.toast').toast('show');
+                    if(res.redirected)  window.location = res.url;
+                }).catch(err => console.log(error))
+                    
+            }
+        })
+    </script>
+{{/section}}

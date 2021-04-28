@@ -1,0 +1,83 @@
+#wrapper{
+    height: 100vh;
+    padding-top: 57px;
+}
+
+nav {
+    border-bottom: 1px solid rgb(175, 172, 172);
+}
+#body-wrapper{
+    flex-direction: row;
+    height: 100%;
+}
+/* editor wrapper */
+#editor-wrapper{
+    padding: 5px;
+    flex-grow: 1;
+    height: 100%;
+    overflow: auto;
+
+    display: flex;
+    flex-direction: column;
+}
+#editor-wrapper #title{
+    font-weight: bold;
+}
+#editor-wrapper #title::-webkit-input-placeholder{
+    font-weight: bold;
+}
+#editor-wrapper #title::-moz-placeholder{
+    font-weight: bold;
+}
+#editor-wrapper #mce-wrapper{
+    flex-grow: 1;
+}
+
+
+/* sidebar */
+#sidebar-widgets.toggled{
+    display: block;
+}
+#sidebar-widgets {
+    display: none;
+    
+    overflow: auto;
+    width: 300px;
+    border-left: 1px solid rgb(175, 172, 172);
+}
+
+.widget-component {
+    padding: 0px;
+    border-bottom: 1px solid rgb(175, 172, 172);
+    font-size: 18px;
+}
+.widget-component button {
+    position: relative;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    width: 100%;
+    border: none;
+    margin: 0;
+    background-color: white; 
+    text-align: left
+}
+.widget-component button:hover{
+    background-color: #e7e7e7;
+}
+.widget-component textarea{
+    height: 150px;
+}
+
+
+.widget-component span {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.widget-component div.collapsible {
+    display: none;
+}
+.widget-component div.collapsible.show {
+    display: block;
+}

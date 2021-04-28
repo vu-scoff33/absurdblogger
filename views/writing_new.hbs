@@ -1,0 +1,55 @@
+<div id="mce-wrapper">
+    <textarea id="mce-editor"></textarea>
+</div>
+
+{{#section 'script'}}
+    <script type="text/javascript">
+        $('#mce-editor').tinymce({
+            auto_focus: "mce-editor",
+            width: "100%",
+            height: "100%",
+            // plugins: 'autoresize', figuring this fucker later
+            statusbar: false,
+            menubar: false,
+            placeholder: "Please fill out all the fields, title, and content at the least, to avoid corruption of my beloved database...",
+        })
+        $("#publish-button").click(function(){
+            let isValidData = dumb_dataValidation();
+            if(isValidData){
+                const {title, content, description, tags, image} = isValidData;
+                let formData = new FormData();
+                formData.append('title', title);
+                formData.append('content', content);
+                formData.append('description', description);
+                formData.append('tags', tags);
+                formData.append('cover', image);
+                formData.append('date', new Date());
+
+                //disable button or mid-CRUD animating
+                //avoid double submit
+                $(this).prop("disabled", true);
+                $(this).text("Publishing...");
+
+                //validity stuff
+
+                fetch("/admin-panel/rumination/write", { //abstract this url
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        
+                    },
+                    redirect: "follow",
+                })
+                .then(res => {
+                    if(res.status === 500)  $('.toast').toast('show');
+                    if(res.redirected)  {
+                        console.log("redirecting");
+                        window.location.href = res.url;
+                    }
+                })
+                .catch(err => console.log(err))
+            } 
+        })
+            
+    </script>
+{{/section}}

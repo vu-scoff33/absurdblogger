@@ -1,0 +1,194 @@
+{{#section 'site-specific_css'}}
+    <link rel="stylesheet" href="/admin/css/back_talks.css">
+{{/section}}
+
+
+<div id="chatbox-wrapper">
+    <div id="users-box">
+    </div>
+
+    <div id="messages-box" >
+        <div id="empty-messages">
+            Empty Messages :(
+        </div>
+        <div id="happy-messages">
+            <ul class="list-group list-group-flush" id="messages">
+
+            </ul>
+            <form id="message-input">
+                <div class="input-group">
+                    <input type="text" class="form-control" required />
+                    <div class="input-group-append">
+                        <button class="btn btn-secondary" type="submit"> > </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{#section 'jquery'}}
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript">
+        //(*!)ULoriented ~= topmost level function / userEvent-dependent --> stateChanges & Repaint of browser & components
+        //(*!)function, classes -- from pure data to UI/UIComponents & vice versa
+        var appendMessage = function(message, isMine){
+            if(isMine) 
+                messageListItem = `<li class="list-group-item text-right">${message}</li>`
+            else 
+                messageListItem = `<li class="list-group-item text-left">${message}</li>`
+            
+            $('#messages').append(messageListItem);
+        }
+        var updateMessagesBox = function(inboxId){ 
+            //$refactor-optimization: only repaint whole with a different id, than current focus. 
+            //messages = [{item, isMine}]
+            var _this = $('#messages-box');
+            if(inboxId){
+                _this.children('#empty-messages').css({"display": "none"});
+                _this.children('#happy-messages').css({"display": "flex"})
+                _this.children('#happy-messages').data("id", inboxId);
+                //clearing before iterating the render again
+                _this.find('#messages').text('');
+                var inbox = MyInbox.findByID(inboxId);
+                if(inbox){
+                    var messages = inbox.messages;
+                    
+                    messages.forEach(messageObj => {
+                    appendMessage(messageObj.message, messageObj.isMine);
+                    });
+                    util_scrollToBottom()
+                }
+                
+            }
+            else{
+                _this.children('#empty-messages').css({"display": "block"});
+                _this.children("#happy-messages").css({"display": "none"})
+            }
+
+        }
+        var appendChatter = function(chatter, inboxId){ 
+            var isCurrentlyMessaging = inboxId === $('#users-box').data("activeInbox");
+            var chatterBox = `<button id=${inboxId}>${chatter}</button>`;
+            if(isCurrentlyMessaging)   chatterBox = `<button class="active" id=${inboxId}>${chatter}</button>`
+            $('#users-box').append(chatterBox);
+
+            $("#users-box > button").on('click', function(event){
+                const inboxId = $(this).attr("id");
+
+                $('#users-box > button[id != "'+inboxId+'"] ').removeClass('active');
+                $(this).addClass('active');
+                $("#users-box").data("activeInbox", inboxId)
+                updateMessagesBox(inboxId);
+                //$refactor- use propagation delegate onto users-box
+            })
+        }
+
+        //@should I utilize async to prepare ready-to-be inserted html -- currentState: insert & prep phase only when click
+        //@how much of the DBMessages should server manage? 
+
+        var DB_MyInboxes = [];      
+        class MyInbox {
+            messages = [] 
+            //lastupdate
+            //isChatterStillActive
+            constructor(from, chatter, now){
+                this.id = from;
+                this.chatter = chatter;
+                this.lastupdate = now;
+            }
+            addMessage(message, isMine){
+                this.messages.push({
+                    message: message, 
+                    isMine: isMine
+                })
+            }
+            //$static deleteInbox
+            //capture & allocate
+
+            static capturer_onNewSocketMessage(data){
+                const {chatter, from, message} = data;
+                const now = Date.now();
+                var allocateable = false;
+                for(let i = 0; i < DB_MyInboxes.length; i++){
+                    let _this = DB_MyInboxes[i];
+                    if(_this.id === from){
+                        allocateable = true;
+                        _this.addMessage(message, false);
+                        _this.lastupdate = now;
+                    }
+                }
+                if(!allocateable){
+                    let newInbox = new MyInbox(from, chatter, now);
+                    newInbox.addMessage(message, false);
+                    DB_MyInboxes.push(newInbox);
+                }
+            }
+            static capturer_onNewInput(text, inboxId){
+                const now = Date.now();
+                for(let i = 0; i < DB_MyInboxes.length; i++)
+                {
+                    let _this = DB_MyInboxes[i];
+                    if(_this.id === inboxId)
+                        _this.addMessage(text, true)
+                        _this.lastupdate = now;
+                }
+            }
+            static findByID(inboxId){
+                for(let i = 0; i < DB_MyInboxes.length; i++){
+                    let _this = DB_MyInboxes[i];
+                    if(inboxId === _this.id)
+                    {
+                        return _this;
+                    }
+                }
+                return null;
+            }
+            static compare(inbox1, inbox2){
+                return inbox2.lastupdate - inbox1.lastupdate;
+            }
+            //@what do I want to capture? my input, & socket message //I do have access to current inbox
+        }
+       
+       function util_scrollToBottom(){
+           var _this = document.getElementById('messages')
+           _this.scrollTop = _this.scrollHeight;
+       }
+
+        //MAIN
+        const socket = io('/wordsofwisdom');
+        socket.on('new-message', (data) => {
+            //pushing to users-box, & if message comes from guy talking to me right now --> also update accordingly
+            //click == a switch of active box
+            MyInbox.capturer_onNewSocketMessage(data);
+            DB_MyInboxes.sort(MyInbox.compare);
+            console.log(DB_MyInboxes)
+            const {from} = data;
+            var isCurrentlyMessaging = (from === $('#users-box').data("activeInbox"));
+
+            //
+            $('#users-box').text('');
+            DB_MyInboxes.forEach(inboxHead =>{
+                appendChatter(inboxHead.chatter, inboxHead.id);
+            })
+            //
+            if(isCurrentlyMessaging)    updateMessagesBox(from)
+        })
+        $('#happy-messages').on('submit', function(event){
+            event.preventDefault();
+            var text = $('input').val();
+            const inboxId = $(event.currentTarget).data('id');
+
+            MyInbox.capturer_onNewInput(text, inboxId);
+            socket.emit('new-admin-message', {
+                from_to: inboxId,
+                message: text
+            })
+            updateMessagesBox(inboxId);
+            
+            $('input').val('');
+        })
+        
+    </script>
+{{/section}}
+

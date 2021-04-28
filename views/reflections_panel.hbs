@@ -1,0 +1,125 @@
+{{#section 'site-specific_css'}}
+    <link rel="stylesheet" href="/admin/css/reflections_panel.css">
+{{/section}}
+
+<div class="container" id="reflections-wrapper">
+    {{!--post search, filter & general info, what data do I care?  --}}
+    <div id="ruminations-table">
+        <div class="rumination-header">
+
+        </div>
+        {{#each ruminations}}
+            <div class="rumination-panel">
+                <div class="rumination-info">
+                    <h3 class="rumination-title"><a href="/admin-panel/write/{{id}}">
+                    {{this.title}}
+                    </a></h3>
+                    <small class="rumination-meta">Published at {{this.meta.createdAt}}</small>
+                </div>
+                <div class="rumination-actions">
+                    <button data-id={{id}} class="btn btn-light unnecessary-animation">&#9887;</button>
+                </div>
+            </div>
+            {{else}}
+            <div class="empty">No content yet. Go write something.</div>
+        {{/each}}
+    </div>
+
+    <nav>
+        <ul class="pagination justify-content-center">
+            {{#unless isFirstPaging}}
+            <li class="page-item"><a href="/admin-panel/reflections/{{prevHref}}" class="page-link">Prev</a></li>
+            {{/unless}}
+            {{{paging}}}
+            {{#unless isLastPaging}}
+            <li class="page-item"><a href="/admin-panel/reflections/{{nextHref}}" class="page-link">Next</a></li>
+            {{/unless}}
+        </ul>
+    </nav>
+
+    <div class="action-popover"> {{!-- pop up & down class --}}
+        <div class="action-popover-body">
+            <button id="edit">Edit</button>
+            <button id="view">View</button>
+            <button id="delete">Delete</button>
+            <button id="copy">Copy Link</button>
+        </div>
+        <div class="action-popover-arrow">
+        </div>
+    </div>
+</div>
+
+{{#section 'jquery'}}
+    <script>
+        $(window).on("load", function(){
+            var currentUrl = window.location.pathname;
+            $('.page-item [href="'+currentUrl+'"]').closest('.page-item').addClass('active');
+        })
+        
+        function individualizePopover(initiator){
+            //popover positions
+            const POPOVER_WIDTH = 150;
+            const RE_EL_HEIGHT = $(initiator).width(); //rotated
+            const scrollOffsetX = window.pageXOffset || document.documentElement.scrollLeft;
+            const scrollOffsetY = window.pageYOffset || document.documentElement.scrollTop;
+
+            let rect = initiator.getBoundingClientRect();
+            let newTop = rect.top + scrollOffsetY - 25;
+            let newLeft = rect.left + scrollOffsetX - POPOVER_WIDTH - 15;
+            $('.action-popover').css({
+                "top": `${newTop}px`,
+                "left": `${newLeft}px`
+            });
+            let arrowOffset = 25 + RE_EL_HEIGHT/2;
+            $('.action-popover-arrow').css({
+                "margin-top": `${arrowOffset}px`
+            })
+            
+            //popover actions
+            const target_id = $(initiator).data("id");
+            $('button#edit').on('click', () => {
+                window.location.href = `/admin-panel/write/${target_id}`
+            })
+            $('button#delete').on('click', () => {
+                fetch('/admin-panel/rumination/delete', {
+                    method: "POST",
+                    headers: {
+                        'Content-Type' : 'application/json'
+                    },
+                    body: JSON.stringify({id: target_id}), 
+                    redirect: "follow"
+                }).then(
+                    res => {
+                        if(res.redirected)  window.location = res.url;
+                    }
+                )
+            })   
+        }
+
+        //rumination's action-popup
+        $('button.unnecessary-animation').on("click", function(event){
+            if(!$(this).hasClass("clicked")){
+                //unclicked state, changing context of action popover
+                $('.unnecessary-animation').removeClass("clicked");
+                $(this).addClass('clicked');
+
+                //recalculate popover position  // or individualize the popover to its trigger
+                individualizePopover(this);
+
+                $('.action-popover').addClass('popped')
+            }
+            else {
+                //already clicked state
+                $(this).removeClass('clicked');
+                $('.action-popover').removeClass('popped')
+            }
+        })
+        $('body').on("click", function(event){
+            if( !$(event.target).hasClass("clicked")){
+                $('button.unnecessary-animation').removeClass("clicked");
+                $('.action-popover').removeClass("popped");
+            }   
+        })
+
+    </script>
+{{/section}}
