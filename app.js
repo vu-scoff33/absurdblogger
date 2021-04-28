@@ -28,20 +28,20 @@ app.set('view engine', 'hbs');
 
 console.log("App.js Logging out dburl ", process.env.DBurl)
 //set database, mongoose
-// mongoose.connect(
-//     process.env.DBurl, 
-//     {useNewUrlParser: true, useUnifiedTopology: true}
-//     //mongoose Models are buffered til database connected, no need to await. 
-// )
-// const connection = mongoose.connection;
-// connection.on('connected', () => {
-//     console.log('Database Connection Successful!');
-//     require('./models/dataInit');
-//     //require('./models/Test.js');
-// })
-// connection.on('error', () => {
-//     console.log('Database Connection Error.')
-// })
+mongoose.connect(
+    process.env.DBurl, 
+    {useNewUrlParser: true, useUnifiedTopology: true}
+    //mongoose Models are buffered til database connected, no need to await. 
+)
+const connection = mongoose.connection;
+connection.on('connected', () => {
+    console.log('Database Connection Successful!');
+    require('./models/dataInit');
+    //require('./models/Test.js');
+})
+connection.on('error', () => {
+    console.log('Database Connection Error.')
+})
 
 
 //applications routes
