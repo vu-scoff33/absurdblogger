@@ -4,6 +4,8 @@ var Mastermind = require('./Mastermind');
 const bcrypt = require('bcrypt');
 const saltrounds = 10; //wtf 
 
+//the purpose of this is to avoid empty database exception
+
 RandomInspiration.find(function(err, results){
     if(results.length)  return;
     //dig deeper to the heart/philosophy of this syntax
@@ -51,5 +53,30 @@ Mastermind.find((err, results) => {
     })
 })
 
+Rumination.find( (err, results) => {
+    if(results.length)
+        return;
+    
+    new Rumination({
+        title: "Seed Data 1",
+        content: "Seed data 1 body"
+    }).save();
+    new Rumination({
+        title: "Seed data 2",
+        content: "Seed data 2 body"
+    }).save();
+    new Rumination({
+        title: "Seed data 3",
+        content: "Seed data 3 body"
+    }).save();
+    new Rumination({
+        title: "Seed data 4",
+        content: "Seed data 4 body"
+    }).save();
+    new Rumination({
+        title: "Seed data 5",
+        content: "Seed data 5 body"
+    }).save()
+})
 
 
