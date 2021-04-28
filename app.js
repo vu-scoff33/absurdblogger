@@ -45,8 +45,9 @@ console.log("App.js Logging out dburl ", process.env.DBurl)
 
 
 //applications routes
-var routes = require('./routes/configs.js');
-app.use('/', routes);
+// var routes = require('./routes/configs.js');
+// app.use('/', routes);
+app.get('/', (req, res) => res.send("hello there hope this should be faster"))
 
 
 const httpServer = app.listen(app.get('port'), () => {
@@ -56,6 +57,3 @@ const httpServer = app.listen(app.get('port'), () => {
 var io = require('socket.io')(httpServer);
 require('./socketio/index')(io);
 
-
-//which part do I want to modularize/abstract out
-//express app & socket io using the same http server
