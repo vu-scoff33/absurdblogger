@@ -15,7 +15,8 @@ router.use('/tinymce', express.static('node_modules/tinymce'))
 router.use('/pixijs', express.static('node_modules/pixi.js/dist/browser'))
 
 //hompage or homepage controller?  $$refactor controllers
-router.get('/', ruminationController.Homepage)
+//router.get('/', ruminationController.Homepage)
+router.get('/', (req, res) => res.send("hello there, faster innit"))
 router.get('/ajax/ruminations', ruminationController.ajax_get)
 router.post('/ajax/ruminations/comment', ruminationController.ajax_post_comment)
 
