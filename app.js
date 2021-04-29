@@ -9,7 +9,7 @@ require('dotenv').config();
 
 var app = express();
 app.set('port', process.env.PORT || 3000);
-//middlewares
+// //middlewares
 var cookieParser = require('cookie-parser');
 app.use(express.urlencoded());
 app.use(express.json());

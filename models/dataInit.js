@@ -41,6 +41,7 @@ Mastermind.find((err, results) => {
     
     const admin_username = "lnvulture";
     const admin_password = "iamworthy";
+    //this is my secret only, unless you're my inteviewer, you got a pass. (though this is extremely unprofessional)
     const admin_role = "Mastermind"
     bcrypt.hash(admin_password, saltrounds, (err, hash) => {
         new Mastermind({
