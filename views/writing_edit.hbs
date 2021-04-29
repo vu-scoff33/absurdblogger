@@ -4,13 +4,15 @@
 
 {{#section 'script'}}
     <script type="text/javascript">
-        var mceEditField = "{{{content}}}";
+        var mceEditField = `{{{content}}}`;
         var id = "{{{id}}}";
 
         $('#mce-editor').tinymce({
             auto_focus: "mce-editor", 
             height: "100%", 
             width: "100%",
+            plugins: 'paste', 
+            paste_as_text: true,
             menubar: false, 
             statusbar: false, 
             setup: function(editor){
