@@ -296,7 +296,7 @@ exports.Homepage = function(req, res){
                 id: doc._id,
                 title: doc.title,
                 content: doc.content, 
-                comments: doc.comments, 
+                comments: doc.comments.length > 0 ? doc.comments : null,
                 cover_id: doc.cover.id || null,
             }
             ruminations.push(rum)
