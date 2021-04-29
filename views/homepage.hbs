@@ -20,7 +20,7 @@
             </div>
             <button class="comments-button children-of-back"><span class="hellip">...</span></button>
             <div class="comments-container children-of-back" data-toggle="modal" data-target="#commentModal">
-                {{#each comments}}
+                {{#each ruminations.[0].comments}}
                     <blockquote class="blockquote">
                         <p>{{this.comment}}</p>
                         <span class="blockquote-footer">{{this.signature}}</span>
@@ -53,7 +53,7 @@
             </div>
             <button class="comments-button children-of-back"><span class="hellip">...</span></button>
             <div class="comments-container children-of-back" data-toggle="modal" data-target="#commentModal">
-                {{#each comments}}
+                {{#each ruminations.[1].comments}}
                     <blockquote class="blockquote">
                         <p>{{this.comment}}</p>
                         <span class="blockquote-footer">{{this.signature}}</span>

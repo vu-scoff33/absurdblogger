@@ -47,6 +47,7 @@ module.exports = function(io){
                 }
                 
                 else {
+                    fn("Admin is Online")
                     _clientSocket.to(isAdminOnline).emit("new-message", {
                         chatter: user,
                         from: _clientSocket.id,
