@@ -272,7 +272,7 @@ exports.ajax_post_comment = function(req, res){
     console.log("user posts comment", req.body);
     const rumination_id = mongoose.Types.ObjectId(req.body.id);
     Rumination.findById(rumination_id).exec((err, doc) => {
-        if(!err){
+        if(!err && doc && req.body.comment){
             doc.comments.push({
                 comment: req.body.comment, 
                 signature: req.body.signature
@@ -296,7 +296,7 @@ exports.Homepage = function(req, res){
                 id: doc._id,
                 title: doc.title,
                 content: doc.content, 
-                comments: doc.comments.length > 0 ? doc.comments : null,
+                comments: doc.comments.length > 0 ? doc.comments.map(cm => ({comment: cm.comment, signature: cm.signature})) : null, //fuck "own property problem"
                 cover_id: doc.cover.id || null,
             }
             ruminations.push(rum)
