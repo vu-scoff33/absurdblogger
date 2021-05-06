@@ -20,6 +20,7 @@
 
         <div class="container" id="chatbox">
             <div id="display-name"></div>
+            <div class="admin-status"></div>
             <ul class="list-group list-group-flush" id="messages">
 
             </ul>
@@ -69,6 +70,8 @@
                 appendMessage(message, false)
                 scrollToBottom();
             })
+            socket.on('admin-online', () => $('.admin-status').addClass('online'));
+            socket.on('admin-offline', () => $('.admin-status').removeClass('online'))
         }   
         function scrollToBottom(){
             var _this = document.getElementById("messages")

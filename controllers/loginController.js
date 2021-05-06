@@ -14,7 +14,7 @@ exports.authenticate = function(req, res){
         if (!err && foundUsername){
             bcrypt.compare(userCredentials.password, foundUsername.hashedPassword, (err, isMatched) => {
                 if(!err && isMatched)  {
-                    const token = jwt.sign({username: foundUsername.username}, process.env.JWT_secret);
+                    const token = jwt.sign({username: foundUsername.username, user_id: foundUsername._id}, process.env.JWT_secret);
                     console.log(token)
                     res.status(201).cookie('ACCESS_TOKEN', token, {httpOnly: true, expiresIn: '1h'})
                         .redirect(302, '/admin-panel');

@@ -32,17 +32,24 @@
     <script type="text/javascript">
         //(*!)ULoriented ~= topmost level function / userEvent-dependent --> stateChanges & Repaint of browser & components
         //(*!)function, classes -- from pure data to UI/UIComponents & vice versa
-        var appendMessage = function(message, isMine){
-            if(isMine) 
-                messageListItem = `<li class="list-group-item text-right">${message}</li>`
-            else 
-                messageListItem = `<li class="list-group-item text-left">${message}</li>`
+        var appendMessage = function(message, textBelongs){
+            switch(textBelongs){
+                case 0:
+                    messageListItem = `<li class="list-group-item text-right">${message}</li>`;
+                    break;
+                case 1:
+                    messageListItem = `<li class="list-group-item text-right font-italic text-info">${message}</li>`;
+                    break;
+                case 2:
+                    messageListItem = `<li class="list-group-item text-left">${message}</li>`;
+                    break;
+            }
+                
             
             $('#messages').append(messageListItem);
         }
         var updateMessagesBox = function(inboxId){ 
             //$refactor-optimization: only repaint whole with a different id, than current focus. 
-            //messages = [{item, isMine}]
             var _this = $('#messages-box');
             if(inboxId){
                 _this.children('#empty-messages').css({"display": "none"});
@@ -55,7 +62,7 @@
                     var messages = inbox.messages;
                     
                     messages.forEach(messageObj => {
-                    appendMessage(messageObj.message, messageObj.isMine);
+                    appendMessage(messageObj.message, messageObj.textBelongs);
                     });
                     util_scrollToBottom()
                 }
@@ -89,7 +96,7 @@
 
         var DB_MyInboxes = [];      
         class MyInbox {
-            messages = [] 
+            messages = []    //messages = [{item, textBelongs}] 0 : 1 : 2 = mine : bot : chatter
             //lastupdate
             //isChatterStillActive
             constructor(from, chatter, now){
@@ -97,10 +104,10 @@
                 this.chatter = chatter;
                 this.lastupdate = now;
             }
-            addMessage(message, isMine){
+            addMessage(message, textBelongs){
                 this.messages.push({
                     message: message, 
-                    isMine: isMine
+                    textBelongs: textBelongs
                 })
             }
             //$static deleteInbox
@@ -114,13 +121,13 @@
                     let _this = DB_MyInboxes[i];
                     if(_this.id === from){
                         allocateable = true;
-                        _this.addMessage(message, false);
+                        _this.addMessage(message, chatter ? 2 : 1);
                         _this.lastupdate = now;
                     }
                 }
                 if(!allocateable){
                     let newInbox = new MyInbox(from, chatter, now);
-                    newInbox.addMessage(message, false);
+                    newInbox.addMessage(message, 2);
                     DB_MyInboxes.push(newInbox);
                 }
             }
@@ -130,7 +137,7 @@
                 {
                     let _this = DB_MyInboxes[i];
                     if(_this.id === inboxId)
-                        _this.addMessage(text, true)
+                        _this.addMessage(text, 0)
                         _this.lastupdate = now;
                 }
             }
