@@ -48,6 +48,7 @@ SOCKETAPP_Chat = async function(chatappNamespace){
     let adminConnections = 0;
     let interval;
     chatappNamespace.use(socketIdentifier);
+    
     chatappNamespace.on("connection", (abitrarySocket) => {
         if(abitrarySocket.role == "wisdomgiver"){
             adminConnections++;

@@ -26,7 +26,6 @@ var hbs = Handlebars.create({
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 
-console.log("App.js Logging out dburl ", process.env.DBurl)
 //set database, mongoose
 mongoose.connect(
     process.env.DBurl, 

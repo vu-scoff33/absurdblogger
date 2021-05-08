@@ -97,12 +97,12 @@ const PreConsonants = {
     //$$make exception mappings: c -> k, g -> gh, ng -> ngh
 }
 
-const VowelsArr = ['a', 'â', 'ă', 'u', 'ư', 'ê', 'e', 'ô', 'o', 'ơ', 
-'i', 'y', 'ai', 'ao', 'âu', 'ay', 'ây', 'eo', 'êu', 'ia', 'iê', 'yê', 'iu',
-'oa', 'oă', 'oe', 'oi', 'ôi', 'ơi', 'oo', 'ua', 'ưa', 'uă', 'uâ', 'uê', 'ui',
-'ưi', 'uo', 'uô', 'ôô', 'uơ', 'ươ', 'ưu', 'uy', 'iêu', 'yêu', 'oai', 'oao', 
-'oeo', 'uao', 'uây', 'uôi', 'ươi', 'ươu', 'uya', 'uyê', 'uyu'
-]
+// const VowelsArr = ['a', 'â', 'ă', 'u', 'ư', 'ê', 'e', 'ô', 'o', 'ơ', 
+// 'i', 'y', 'ai', 'ao', 'âu', 'ay', 'ây', 'eo', 'êu', 'ia', 'iê', 'yê', 'iu',
+// 'oa', 'oă', 'oe', 'oi', 'ôi', 'ơi', 'oo', 'ua', 'ưa', 'uă', 'uâ', 'uê', 'ui',
+// 'ưi', 'uo', 'uô', 'ôô', 'uơ', 'ươ', 'ưu', 'uy', 'iêu', 'yêu', 'oai', 'oao', 
+// 'oeo', 'uao', 'uây', 'uôi', 'ươi', 'ươu', 'uya', 'uyê', 'uyu'
+// ]
 
 
 //Rhyme = vowels + postfixes (connectable? --> true all, false none --> some [requires a postfix?] )

@@ -134,6 +134,7 @@ exports.dumb_ajax_create = [
 
 exports.dumb_ajax_delete = function(req, res){
     const rumination_id = mongoose.Types.ObjectId(req.body.id);
+
     Rumination.findByIdAndDelete(rumination_id).exec((err) => {
         if(err) console.log(err);
         else{
@@ -145,7 +146,6 @@ exports.dumb_ajax_delete = function(req, res){
 exports.dumb_ajax_update = [
     uploadCover, 
     function(req, res){
-        console.log("logging out ajax update", req.body, req.file);
         if(req.file)   console.log("There is a change in the state of file") //$$refactor: adding remove files, 
         const rumination_id = mongoose.Types.ObjectId(req.body.id);
         const {title, content, description, tags, date} = req.body;
@@ -192,10 +192,9 @@ exports.dumb_ajax_update = [
 
 exports.pagination = async (req, res) => {
     const page = parseInt(req.params.page, 10); //current page
-    const SHOWN_PER_PAGE = 5;
+    const SHOWN_PER_PAGE = 6;
     const ruminations_counter = await Rumination.countDocuments({}); //no filter
     Rumination.find({}).sort('-meta.createdAt').skip(SHOWN_PER_PAGE * (page - 1)).limit(SHOWN_PER_PAGE)
-    .select('title meta tags')
     .exec((err, docs) => {
         if(err) console.log(err);
         //manually build a ready-to-use context object from docs, avoid passing the whole damn doc into handlebars
@@ -203,7 +202,8 @@ exports.pagination = async (req, res) => {
         const MAX_PAGING = Math.ceil(ruminations_counter / SHOWN_PER_PAGE);
         const context = {
             ruminations: docs.map(doc => ({
-                title: doc.title, meta: doc.meta, id: doc._id.toString()
+                title: doc.title, localeDate: doc.localeDate, id: doc._id.toString(), commentsSize: doc.comments.length, 
+                cover_id: doc.cover.id, tags: doc.tags_stringified, description: doc.description
             })), //lean returning plain objects to enhance security
                         //handlebars won't retrieve data coming from a prototype
             isFirstPaging: (page == 1),
@@ -211,7 +211,6 @@ exports.pagination = async (req, res) => {
             prevHref: (page > 1) ? (page - 1) : 1,
             nextHref: (page < MAX_PAGING) ? (page + 1) : MAX_PAGING
         }
-        //console.log(context)
         res.render('reflections_panel.hbs', {
             layout: 'admin_panel.hbs',
             ...context,
@@ -234,6 +233,7 @@ exports.pagination = async (req, res) => {
 }
 
 exports.get_cover = function(req, res){
+    //$$ extremely slow streaming: to-do - mongobindata || multer
     try {
         var coverId = mongoose.Types.ObjectId(req.params.id);
     } catch(err){

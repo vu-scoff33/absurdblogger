@@ -2,49 +2,79 @@
     <link rel="stylesheet" href="/admin/css/reflections_panel.css">
 {{/section}}
 
-<div class="container" id="reflections-wrapper">
-    {{!--post search, filter & general info, what data do I care?  --}}
-    <div id="ruminations-table">
-        <div class="rumination-header">
-
+<div id="reflections-wrapper">
+    <div class="container" id="ruminations-container">
+        <div id="ruminations-header">
+            <h1 class="h2">Reflections</h1>
+            <nav class="d-flex">
+                <ul class="pagination ml-auto">
+                    {{#unless isFirstPaging}}
+                    <li class="page-item"><a href="/admin-panel/reflections/{{prevHref}}" class="page-link">Prev</a></li>
+                    {{/unless}}
+                    {{{paging}}}
+                    {{#unless isLastPaging}}
+                    <li class="page-item"><a href="/admin-panel/reflections/{{nextHref}}" class="page-link">Next</a></li>
+                    {{/unless}}
+                </ul>
+            </nav>
         </div>
-        {{#each ruminations}}
-            <div class="rumination-panel">
-                <div class="rumination-info">
-                    <h3 class="rumination-title"><a href="/admin-panel/write/{{id}}">
-                    {{this.title}}
-                    </a></h3>
-                    <small class="rumination-meta">Published at {{this.meta.createdAt}}</small>
+        <hr/>
+        <div id="ruminations-grid">
+            <div class="row"> 
+                {{#each ruminations}}
+                <div class="col-4">
+                    <div class="rumination-card">
+                        <div class="rumination-image">
+                            {{#if this.cover_id}}
+                            <img src="/covers/{{cover_id}}">
+                            {{else}}    <img src="/public/images/sample-inspire.jpg">
+                            {{/if}}
+                        </div>
+                        <div class="rumination-content">
+                            <div class="rumination-title">
+                                <h5><a href="/admin-panel/write/{{this.id}}">{{this.title}}</a></h5>
+                            </div>
+                            <div class="rumination-extras">
+                                <div class="rumination-description">
+                                    {{this.description}}
+                                </div>
+                                <div class="d-flex justify-content-between rumination-meta">
+                                    <small><i class="fas fa-calender-alt"></i>{{this.localeDate}}</small>
+                                    <small><i class="fas fa-tags"></i>
+                                        {{this.tags_stringified}}
+                                    </small>
+                                    <small><i class="fas fa-comment"></i>{{this.commentsSize}}</small>
+                                </div>
+                            </div>              
+                        </div>
+                        <div class="rumination-actions">
+                            <a class="btn btn-secondary" href="/admin-panel/write/{{this.id}}"><i class="fas fa-pen"></i></a>
+                            <a data-id="{{this.id}}" class="btn btn-secondary" data-toggle="modal" data-target="#deleteConfirm"><i class="fas fa-trash"></i></a>
+                        </div>
+                    </div>
                 </div>
-                <div class="rumination-actions">
-                    <button data-id={{id}} class="btn btn-light unnecessary-animation">&#9887;</button>
-                </div>
+                {{/each}}
             </div>
-            {{else}}
-            <div class="empty">No content yet. Go write something.</div>
-        {{/each}}
+        </div>
     </div>
 
-    <nav>
-        <ul class="pagination justify-content-center">
-            {{#unless isFirstPaging}}
-            <li class="page-item"><a href="/admin-panel/reflections/{{prevHref}}" class="page-link">Prev</a></li>
-            {{/unless}}
-            {{{paging}}}
-            {{#unless isLastPaging}}
-            <li class="page-item"><a href="/admin-panel/reflections/{{nextHref}}" class="page-link">Next</a></li>
-            {{/unless}}
-        </ul>
-    </nav>
-
-    <div class="action-popover"> {{!-- pop up & down class --}}
-        <div class="action-popover-body">
-            <button id="edit">Edit</button>
-            <button id="view">View</button>
-            <button id="delete">Delete</button>
-            <button id="copy">Copy Link</button>
-        </div>
-        <div class="action-popover-arrow">
+    <div id="deleteConfirm" class="modal" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmation</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        &times;
+                    </button>
+                </div>
+                <div class="modal-body">
+                    You're about to delete record <small class="debug"></small>. Please confirm.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button id="delete" type="button" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -55,71 +85,28 @@
             var currentUrl = window.location.pathname;
             $('.page-item [href="'+currentUrl+'"]').closest('.page-item').addClass('active');
         })
-        
-        function individualizePopover(initiator){
-            //popover positions
-            const POPOVER_WIDTH = 150;
-            const RE_EL_HEIGHT = $(initiator).width(); //rotated
-            const scrollOffsetX = window.pageXOffset || document.documentElement.scrollLeft;
-            const scrollOffsetY = window.pageYOffset || document.documentElement.scrollTop;
 
-            let rect = initiator.getBoundingClientRect();
-            let newTop = rect.top + scrollOffsetY - 25;
-            let newLeft = rect.left + scrollOffsetX - POPOVER_WIDTH - 15;
-            $('.action-popover').css({
-                "top": `${newTop}px`,
-                "left": `${newLeft}px`
-            });
-            let arrowOffset = 25 + RE_EL_HEIGHT/2;
-            $('.action-popover-arrow').css({
-                "margin-top": `${arrowOffset}px`
-            })
-            
-            //popover actions
-            const target_id = $(initiator).data("id");
-            $('button#edit').on('click', () => {
-                window.location.href = `/admin-panel/write/${target_id}`
-            })
-            $('button#delete').on('click', () => {
-                fetch('/admin-panel/rumination/delete', {
-                    method: "POST",
-                    headers: {
-                        'Content-Type' : 'application/json'
-                    },
-                    body: JSON.stringify({id: target_id}), 
-                    redirect: "follow"
-                }).then(
-                    res => {
-                        if(res.redirected)  window.location = res.url;
-                    }
-                )
-            })   
-        }
-
-        //rumination's action-popup
-        $('button.unnecessary-animation').on("click", function(event){
-            if(!$(this).hasClass("clicked")){
-                //unclicked state, changing context of action popover
-                $('.unnecessary-animation').removeClass("clicked");
-                $(this).addClass('clicked');
-
-                //recalculate popover position  // or individualize the popover to its trigger
-                individualizePopover(this);
-
-                $('.action-popover').addClass('popped')
-            }
-            else {
-                //already clicked state
-                $(this).removeClass('clicked');
-                $('.action-popover').removeClass('popped')
-            }
+        $('#deleteConfirm').on('show.bs.modal', function(event){
+            let _id = $(event.relatedTarget).data("id");
+            $(this).find('.debug').text(_id);
+            $(this).find('#delete').data("_id", _id)
         })
-        $('body').on("click", function(event){
-            if( !$(event.target).hasClass("clicked")){
-                $('button.unnecessary-animation').removeClass("clicked");
-                $('.action-popover').removeClass("popped");
-            }   
+        $('#deleteConfirm').on('click', '#delete',() => {
+            const target_id = $(event.target).data("_id");
+            fetch('/admin-panel/rumination/delete', {
+                method: "POST", 
+                body: JSON.stringify({id: target_id}),
+                redirect: 'follow',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(res => {
+                if(res.redirected)  window.location = res.url;
+            })
         })
-
+        $('#deleteConfirm').on('hide.bs.modal', (event) => {
+            $(this).find('.debug').text("");
+            $(this).find('#delete').removeData()
+        })
     </script>
 {{/section}}

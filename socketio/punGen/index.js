@@ -7,7 +7,7 @@ const LegalRhymes = require('./Dictionary').LegalRhymes;
 
 var slicer = function(word){//a 2-chunk word
     var toned_chunks = word.split(' ');
-    //untonify- first, since there are possible tones on the damn preconsonants
+    //untonify- first, since there are possible tones on preconsonants
     
     var pre = [];
     var post_vowels = [];

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cookie&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Itim&display=swap');
 
 #cards-container{
     /* invisible container with positioning use only */
@@ -63,7 +63,7 @@ div.spinner{
     padding-bottom: 5px;
     font-size: 1.5rem;
     font-weight: 400;
-    font-family: 'Cookie', 'cursive';
+    font-family: 'Itim', 'cursive';
 }
 /* %also requires to set hidden to its children */
 .story-card-back > .children-of-back {

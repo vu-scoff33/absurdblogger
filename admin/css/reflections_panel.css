@@ -1,110 +1,94 @@
-.container#reflections-wrapper{
-    padding-top: 15px;
-    padding-left: 25px; 
-    padding-right: 25px;
+#reflections-wrapper{
+    width: 100%;
+    height: 100%;
+    background-color: #eeedf8;
+    overflow: auto;
 }
 
-.rumination-panel{
-    display: flex;
-    flex-direction: row;
-    padding: 15px 10px 15px 10px;
-    border-top: 1px solid rgb(216, 211, 211);
-    border-left: 1px solid rgb(216, 211, 211);
-    border-right: 1px solid rgb(216, 211, 211);
-    align-items: center;
+.container#ruminations-container{
+    padding: 25px 30px 0 30px;
+    font-size: 100%;
 }
-.rumination-panel:last-child{
-    border-bottom: 1px solid rgb(216, 211, 211);
+
+#ruminations-grid .row > div{
+    /* adding vertical & fix horizontal padding between elements + unspecified children(cols) per row 
+    + invisible structure */ 
+    padding: 10px;
 }
-.rumination-panel a {
-    color: black;
+
+.rumination-card{
+    border-radius: 5px;
+    height: 400px;
+    position: relative;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+.rumination-image{
+    width: 100%;
+    height: 350px;
+    overflow: hidden;
+    border-top-right-radius: inherit;
+    border-top-left-radius: inherit;
+    transition: all 0.4s cubic-bezier(0.35, 0.97, 0.52, 1);
+}
+.rumination-image img{
+    width: 100%;
+    height: 100%;
+    transition: all 0.4s cubic-bezier(0.35, 0.97, 0.52, 1);
+}
+.rumination-content{
+    position: absolute;
+    bottom: 0;
+    transform: translateY(150px);
+    transition: all 0.4s cubic-bezier(0.35, 0.97, 0.52, 1);
+    width: 100%;
+    text-align: center;
+    padding: 15px 5px 5px 5px;
+    background-color: white;
+}
+.rumination-title{
+    height: 50px;
+}
+.rumination-title a{
+    display: inline-block;
     text-decoration: none;
+    color: black;
+    transition: 0.3s ease-in;
+    background-image: linear-gradient(purple, purple);
+    background-position: 0% 100%;
+    background-size: 0 2px;
+    background-repeat: no-repeat;
 }
-.rumination-panel a:hover{
-    color:rgb(102, 101, 101)
-}
-.rumination-info{
-    margin-right: auto;
-    /* max width */
-    /* i should set a max-width */
-}
-.rumination-meta{
-    font-style: italic;
+.rumination-title a:hover{
+    background-size: 100% 2px;
 }
 
-.pagination{
-    margin-top: 10px;
-}
-
-.unnecessary-animation {
-    background: none;
-    border: none;
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)
-}
-.unnecessary-animation.clicked{
-    transform: rotate(90deg);
-}
-
-.action-popover /* invisible, for structure only */{
-    position: absolute;
-    right: 10px;
-    top: 200px;
-    width: 160px;
-    height: auto;
-
-    display: flex;
-    flex-direction: row;
-    visibility: hidden;
-}
-.action-popover.popped{
-    visibility: visible;
-}
-.action-popover-arrow{
-    width: 0;
-    height: 0;
-    border-top: 10px solid transparent;
-    border-left: 10px solid grey;
-    border-right: none;
-    border-bottom: 10px solid transparent;
-    position: relative; /* for repositioning left-right as to the button */
-}
-.action-popover-arrow::before{
-    position: absolute;
-    content: "";
-    right: 2px;
-    top: -10px;
-    border-top: 10px solid transparent;
-    border-left: 10px solid white;
-    border-right: none;
-    border-bottom: 10px solid transparent;
-}
-
-.action-popover-body { /* visible element */
-    width: 150px;
+.rumination-extras{
+    height: 150px;
     display: flex;
     flex-direction: column;
-    border: 1px solid rgb(116, 114, 114);
-    border-radius: 3%;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    padding-left: 0;
-    font-size: 16px;
-    background-color: white;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.11);
+    justify-content: space-between;
+    color: grey;
+    font-style: italic;
 }
-
-.action-popover-body button{
-    display: block;
-    line-height: 25px;
-    padding-left: 10px;
-    margin-left: -0.2px; /* for annoying white space */
-    text-decoration: none;
-    color: rgb(102, 101, 101);
-    border: none;
-    background-color: white;
+.rumination-actions{
+    position: absolute;
+    top: 100px;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    visibility: hidden;
+    font-size: 1.2rem;
 }
-.action-popover-body button:hover{
-    background-color: rgb(59, 116, 238);
-    color: white;
+.rumination-card:hover rumination-image{
+    height: 200px;
 }
-
+.rumination-card:hover img{
+    opacity: 0.8;
+    transform: scale(1.4) rotate(10deg);
+}
+.rumination-card:hover .rumination-content{
+    transform: translateY(0);
+}
+.rumination-card:hover .rumination-actions{
+    visibility: visible;
+}

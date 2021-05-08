@@ -32,6 +32,9 @@ RuminationSchema.virtual('tags_stringified').get(function(){
         buildupString +=   `, ${this.tags[i]}`
     return buildupString;
 })
+RuminationSchema.virtual('localeDate').get(function(){
+    return this.meta.createdAt.toLocaleDateString('en-US', {timeZone: "Asia/Jakarta", year: 'numeric', month: 'short', weekday: 'short', day: '2-digit'})
+})
 RuminationSchema.statics.checkValidReferenceCover = function(refId){
     return new Promise( (resolve, reject) => {
         let isRefExisted = mongoose.connection.db.collection('covers.files').findOne({_id: refId})
