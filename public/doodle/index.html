@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Doodle Me!</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="doodle.css">
+</head>
+<body>
+    <div id="doodle-wrapper">
+        <div class="colors">
+
+        </div>
+        <canvas></canvas>
+        <div class="tools">
+            <button id="bucket">Bucket</button>
+            <button id="clear">Clear</button>
+            <button id="upload">Upload</button>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="doodle.js"></script>
+    <script>
+        let doodleCanvas = document.querySelector('#doodle-wrapper canvas');
+        const COLORS = [
+            [0, 0, 0, 255],
+            [0, 0, 255, 255], 
+            [0, 128, 0, 255],
+            [0, 128, 128, 255],
+            [0, 255, 255, 255],
+            [128, 0, 128, 255],
+            [255, 0, 0, 255],
+            [255, 255, 0, 255],
+            [255, 255, 255, 255]
+        ]
+        COLORS.forEach((color, index) => {
+            let button = document.createElement('button');
+            button.style.backgroundColor = toRgba(color);
+            button.index = index;
+            document.querySelector('.colors').appendChild(button)
+        })
+
+        DOODLEme(doodleCanvas, {
+            width: doodleCanvas.clientWidth, 
+            height: doodleCanvas.clientHeight,
+            colorsList: COLORS
+        })
+        let colorsBox = document.querySelector('.colors');
+        colorsBox.onclick = function(event){
+            colorsBox.querySelectorAll('button').forEach(el => el.classList.remove('picked'))
+            let button = event.target;
+            button.classList.add('picked');
+            doodleCanvas.setStates({
+                colorIndex: button.index
+            })
+        }
+
+        document.querySelector('#bucket').onclick = function(event){
+            doodleCanvas.setStates({
+                pen: doodleCanvas.states.pen == 'fill' ? 'stroke' : 'fill'
+            });
+            event.target.classList.toggle('activated')
+        }
+        document.querySelector('#clear').onclick = function(event){
+            doodleCanvas.clear();
+        }
+        document.querySelector('#upload').onclick = function(event){
+            console.log('saving...')
+        }
+
+    </script>
+
+</body>
+</html>

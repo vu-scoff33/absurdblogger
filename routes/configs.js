@@ -5,6 +5,7 @@ var express = require('express');
 const mongoose = require('mongoose')
 var auth = require('../middlewares/auth');
 var ruminationController = require("../controllers/ruminationController");
+var path = require('path')
 
 
 var router = express.Router();
@@ -84,5 +85,11 @@ router.get('/admin-panel/reflections/:page', ruminationController.pagination);
 var chatController = require('../controllers/chatController');
 router.get('/admin-panel/talks', chatController.get_chatbox);
 
+
+//testing features
+router.use('/anidlelife/doodle', express.static('public/doodle'))
+router.get('/andidlelife/doodle', (req, res) => {
+    res.sendFile('index.html', {root: path.join(__dirname, '../public/doodle')})
+})
 
 module.exports = router;

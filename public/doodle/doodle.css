@@ -1,0 +1,64 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{ 
+    background-image: linear-gradient(to right, #d3cce3, #e9e4f0);
+    height: 100vh;
+    position: relative;
+}
+#doodle-wrapper{
+    width: 55%;
+    height: 90%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+}
+#doodle-wrapper .tools{
+    display: flex;
+    flex-direction: column;
+    margin-left: 10px;
+}
+#doodle-wrapper .tools > button {
+    width: auto; 
+    height: 30px;
+    margin-top: 3px;
+    border: 1px solid black;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+#doodle-wrapper .tools > button:first-child {
+    margin-top: 0;
+}
+#doodle-wrapper .tools > button:hover{
+    background-color: rgb(172, 168, 168);
+}
+#doodle-wrapper .tools > button#bucket.activated{
+    background-color: rgb(172, 168, 168);
+}
+#doodle-wrapper canvas{
+    border: 2px solid black;
+}
+#doodle-wrapper .colors{
+    display: flex;
+    flex-direction: column;
+}
+#doodle-wrapper .colors > button {
+   width: 25px;
+   height: 25px;
+   outline: 1px black solid;
+   outline-offset: 1px;
+   border: 1px solid black;
+   margin-top: 5px;
+   margin-right: 2px;
+}
+#doodle-wrapper .colors > button:first-child{
+    margin-top: 2px;
+}
+#doodle-wrapper .colors > button.picked{
+    outline: 1px black dashed;
+}
