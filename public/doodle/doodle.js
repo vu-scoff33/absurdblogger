@@ -1,6 +1,6 @@
 const DOODLEme = function(Canvas, options){
     //INIT & Prepare
-    const {width, height, colorsList, lineWidth = 4} = options;
+    const {width, height, colorsList, lineWidth = 4, ceaseControl} = options;
     Canvas.width = width;
     Canvas.height = height;
     Canvas.colorsList = colorsList;
@@ -10,6 +10,7 @@ const DOODLEme = function(Canvas, options){
         colorIndex: 0
     }
     let Ctx = Canvas.getContext('2d');
+    Canvas.Ctx = Ctx
     Ctx.lineWidth = lineWidth;
     Ctx.fillStyle = "white";
     Ctx.fillRect(0, 0, Canvas.width, Canvas.height);
@@ -36,34 +37,34 @@ const DOODLEme = function(Canvas, options){
         Ctx.fillStyle = "white";
         Ctx.fillRect(0, 0, Canvas.width, Canvas.height)
     }
-    Canvas.save = function(){
-        
-    }
-    //bind Events
-    Canvas.addEventListener('mousedown', function(event){
-        switch (Canvas.states.pen){
-            case "stroke": 
-                DRAW.begin(Canvas, Ctx, {x: event.offsetX, y: event.offsetY});
-                break;
-            case "fill": 
-                ScanFill({x: event.offsetX, y: event.offsetY}, Canvas, Ctx);
-                break;
-        }
-    })
-    Canvas.addEventListener('mousemove', function(event){
-        DRAW.drawing(Canvas, Ctx, {x: event.offsetX, y: event.offsetY})
-    })
-    Canvas.addEventListener('mouseup', function(event){
-        DRAW.end(Canvas, Ctx);
-    })
-    Canvas.addEventListener('mouseupoutside', function(event){
-        DRAW.end(Canvas, Ctx)
-    })
     document.addEventListener('mouseup', (event) => {
         if(event.target !== Canvas && Canvas.pendown){
             Canvas.dispatchEvent(new Event('mouseupoutside', {bubbles: false}));
         }
     })
+
+    //bind Events
+    if(!ceaseControl){
+        Canvas.addEventListener('mousedown', function(event){
+            switch (Canvas.states.pen){
+                case "stroke": 
+                    DRAW.begin(Canvas, Ctx, {x: event.offsetX, y: event.offsetY});
+                    break;
+                case "fill": 
+                    ScanFill({x: event.offsetX, y: event.offsetY}, Canvas, Ctx);
+                    break;
+            }
+        })
+        Canvas.addEventListener('mousemove', function(event){
+            DRAW.drawing(Canvas, Ctx, {x: event.offsetX, y: event.offsetY})
+        })
+        Canvas.addEventListener('mouseup', function(event){
+            DRAW.end(Canvas, Ctx);
+        })
+        Canvas.addEventListener('mouseupoutside', function(event){
+            DRAW.end(Canvas, Ctx)
+        })
+    }
 }
 
 const DRAW = {
@@ -94,6 +95,7 @@ const DRAW = {
 
 
 const ScanFill = function(Point, Canvas, Ctx){
+    //$need further optimization
     const fillColor = Canvas.colorsList[Canvas.states.colorIndex]
     let imageData = Ctx.getImageData(0, 0, Canvas.width, Canvas.height);
     let data = imageData.data;
@@ -130,6 +132,8 @@ const ScanFill = function(Point, Canvas, Ctx){
     Ctx.putImageData(imageData, 0, 0);
 }
 
+
+//utility functions
 const isColorEqual = function(Color_1, Color_2) {
     for(let i = 0; i < 4; i++){
         if(Color_1[i] != Color_2[i])

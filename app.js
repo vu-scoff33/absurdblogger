@@ -5,7 +5,6 @@ require('dotenv').config();
 
 
 //testingFeatures for console //console testing
-//require('./socketio/punGen/index');
 
 var app = express();
 app.set('port', process.env.PORT || 3000);

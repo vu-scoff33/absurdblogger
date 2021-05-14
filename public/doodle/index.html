@@ -7,31 +7,52 @@
     <link rel="stylesheet" href="doodle.css">
 </head>
 <body>
-    <div id="doodle-wrapper">
-        <div class="colors">
+    <div id="identification" class="component">
+        <form>
+            <input required id="name" type="text" placeholder="Name" />
+            <input required id="roomId" type="text" placeholder="RoomId" />
+            <input class="hide" type="submit" />
+        </form>
+    </div>
+    <div id="game" class="component hide">
+        <div id="users-box">
 
         </div>
-        <canvas></canvas>
-        <div class="tools">
-            <button id="bucket">Bucket</button>
-            <button id="clear">Clear</button>
-            <button id="upload">Upload</button>
+
+        <div id="doodle-wrapper">
+            <div class="colors">
+    
+            </div>
+            <canvas></canvas>
+            <div class="tools">
+                <button id="bucket">Bucket</button>
+                <button id="clear">Clear</button>
+            </div>
+        </div>
+
+        <div id="chat-box">
+            <form>
+                <input type="text" required placeholder="talk to your friends, if any..." />
+                <input type="submit" class="hide" />
+            </form>
         </div>
     </div>
 
     <script type="text/javascript" src="doodle.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script>
+        init()
         let doodleCanvas = document.querySelector('#doodle-wrapper canvas');
         const COLORS = [
-            [0, 0, 0, 255],
-            [0, 0, 255, 255], 
-            [0, 128, 0, 255],
-            [0, 128, 128, 255],
-            [0, 255, 255, 255],
-            [128, 0, 128, 255],
-            [255, 0, 0, 255],
-            [255, 255, 0, 255],
-            [255, 255, 255, 255]
+                [0, 0, 0, 255],
+                [0, 0, 255, 255], 
+                [0, 128, 0, 255],
+                [0, 128, 128, 255],
+                [0, 255, 255, 255],
+                [128, 0, 128, 255],
+                [255, 0, 0, 255],
+                [255, 255, 0, 255],
+                [255, 255, 255, 255]
         ]
         COLORS.forEach((color, index) => {
             let button = document.createElement('button');
@@ -39,35 +60,122 @@
             button.index = index;
             document.querySelector('.colors').appendChild(button)
         })
+        function init(){
+            document.querySelector('#identification form').onsubmit = function(event){
+                if(!this.checkValidity()) 
+                    return;
+                event.preventDefault();
+                this.onkeyup = function(event){
+                    if(event.keyCode == 13){
+                        let name = this.querySelector('#name').value;
+                        let roomId = this.querySelector('#roomId').value;
+                        const socket = io('/doodleguess');
+                        socket.emit('join', {
+                            name: name,
+                            roomId: roomId
+                        })
+                        this.parentElement.classList.add('hide')
+                        document.querySelector('#game').classList.remove('hide');
+                        let users_box = document.querySelector('#users-box');
+                        let chat_box = document.querySelector('#chat-box');
 
-        DOODLEme(doodleCanvas, {
+                        operateCanvas(socket);
+
+                        socket.on('user-joined', (data) => {
+                            const {users_list} = data;
+                            users_box.innerHTML = '';
+                            users_list.forEach((user) => {
+                                let userBox = document.createElement('div');
+                                userBox.classList.add('user-box');
+                                userBox.textContent = user;
+                                users_box.appendChild(userBox)
+                            })
+                        })
+                        socket.on('user-left', (data) => {
+                            [...users_box.children].forEach(node => {
+                                if(node.textContent === data.name)
+                                    node.remove()
+                            })
+                        })
+                        socket.on('text', (data) => {
+                            let chat = document.createElement('div');
+                            chat.classList.add('chat');
+                            chat.innerHTML = `<span style="font-style: italic; font-weight: bold">${data.sender}: </span>
+                                    <span>${data.text}</span>`
+                            chat_box.appendChild(chat)
+                        })
+                        chat_box.querySelector('form').onsubmit  = function(event){
+                            event.preventDefault();
+                            socket.emit('text', {
+                                text: this.querySelector('input').value
+                            })
+                            this.querySelector('input').value = '';
+                        }
+                    }
+                }
+            }
+        }
+        function operateCanvas(socket){
+            DOODLEme(doodleCanvas, {
             width: doodleCanvas.clientWidth, 
             height: doodleCanvas.clientHeight,
-            colorsList: COLORS
-        })
-        let colorsBox = document.querySelector('.colors');
-        colorsBox.onclick = function(event){
-            colorsBox.querySelectorAll('button').forEach(el => el.classList.remove('picked'))
-            let button = event.target;
-            button.classList.add('picked');
-            doodleCanvas.setStates({
-                colorIndex: button.index
+            colorsList: COLORS, 
+            ceaseControl: true
             })
-        }
+            let colorsBox = document.querySelector('.colors');
+            colorsBox.onclick = function(event){
+                colorsBox.querySelectorAll('button').forEach(el => el.classList.remove('picked'))
+                let button = event.target;
+                button.classList.add('picked');
+                doodleCanvas.setStates({
+                    colorIndex: button.index
+                })
+            }
+            document.querySelector('#bucket').onclick = function(event){
+                doodleCanvas.setStates({
+                    pen: doodleCanvas.states.pen == 'fill' ? 'stroke' : 'fill'
+                });
+                event.target.classList.toggle('activated')
+            }
+            document.querySelector('#clear').onclick = function(event){
+                doodleCanvas.clear();
+                sendwhole();
+            }
+            doodleCanvas.addEventListener('mousedown', function(event){
+                switch(doodleCanvas.states.pen){
+                    case "stroke": 
+                        DRAW.begin(doodleCanvas, doodleCanvas.Ctx, {x: event.offsetX, y: event.offsetY});
+                        sendwhole();
+                        break;
+                    case "fill": 
+                        ScanFill({x: event.offsetX, y: event.offsetY},doodleCanvas, doodleCanvas.Ctx, );
+                        sendwhole()
+                        break;
+                }
+            })
+            doodleCanvas.addEventListener('mousemove', function(event){
+                DRAW.drawing(doodleCanvas, doodleCanvas.Ctx, {x: event.offsetX, y: event.offsetY});
+                sendwhole()
+            })
+            doodleCanvas.addEventListener('mouseup', function(event){
+                DRAW.end(doodleCanvas, doodleCanvas.Ctx);
+            })
 
-        document.querySelector('#bucket').onclick = function(event){
-            doodleCanvas.setStates({
-                pen: doodleCanvas.states.pen == 'fill' ? 'stroke' : 'fill'
-            });
-            event.target.classList.toggle('activated')
+            socket.on('canvas-data', (data) => {
+                let image = new Image();
+                image.src = data.base64;
+                image.onload = () => {
+                    doodleCanvas.Ctx.drawImage(image, 0, 0)
+                }
+            })
+            function sendwhole(){
+                //cache current data - $$test how fast sending base64 thru network
+                let base64 = doodleCanvas.toDataURL();
+                socket.emit("canvas-data", {
+                    base64: base64
+                })
+            }
         }
-        document.querySelector('#clear').onclick = function(event){
-            doodleCanvas.clear();
-        }
-        document.querySelector('#upload').onclick = function(event){
-            console.log('saving...')
-        }
-
     </script>
 
 </body>
