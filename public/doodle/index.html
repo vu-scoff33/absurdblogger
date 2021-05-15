@@ -42,7 +42,7 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         init()
-        let doodleCanvas = document.querySelector('#doodle-wrapper canvas');
+        let canvas = document.querySelector('#doodle-wrapper canvas');
         const COLORS = [
                 [0, 0, 0, 255],
                 [0, 0, 255, 255], 
@@ -60,6 +60,7 @@
             button.index = index;
             document.querySelector('.colors').appendChild(button)
         })
+        let isHost;
         function init(){
             document.querySelector('#identification form').onsubmit = function(event){
                 if(!this.checkValidity()) 
@@ -73,6 +74,10 @@
                         socket.emit('join', {
                             name: name,
                             roomId: roomId
+                        })
+                        socket.on('host-assigned', () => {
+                            isHost = true;
+                            console.log("I am host")
                         })
                         this.parentElement.classList.add('hide')
                         document.querySelector('#game').classList.remove('hide');
@@ -104,6 +109,7 @@
                                     <span>${data.text}</span>`
                             chat_box.appendChild(chat)
                         })
+                        socket.on('canvas-data', () => console.log("testing canvas-data"))
                         chat_box.querySelector('form').onsubmit  = function(event){
                             event.preventDefault();
                             socket.emit('text', {
@@ -116,11 +122,10 @@
             }
         }
         function operateCanvas(socket){
-            DOODLEme(doodleCanvas, {
-            width: doodleCanvas.clientWidth, 
-            height: doodleCanvas.clientHeight,
+            let doodleCanvas = DOODLEme(canvas, {
+            width: canvas.clientWidth, 
+            height: canvas.clientHeight,
             colorsList: COLORS, 
-            ceaseControl: true
             })
             let colorsBox = document.querySelector('.colors');
             colorsBox.onclick = function(event){
@@ -133,48 +138,64 @@
             }
             document.querySelector('#bucket').onclick = function(event){
                 doodleCanvas.setStates({
-                    pen: doodleCanvas.states.pen == 'fill' ? 'stroke' : 'fill'
+                    pen: doodleCanvas.states.pen == 'stroke' ? 'fill' : 'stroke'
                 });
-                event.target.classList.toggle('activated')
+                event.target.classList.toggle('activated');
             }
             document.querySelector('#clear').onclick = function(event){
-                doodleCanvas.clear();
-                sendwhole();
+                doodleCanvas.DRAW.clear();
             }
-            doodleCanvas.addEventListener('mousedown', function(event){
-                switch(doodleCanvas.states.pen){
-                    case "stroke": 
-                        DRAW.begin(doodleCanvas, doodleCanvas.Ctx, {x: event.offsetX, y: event.offsetY});
-                        sendwhole();
-                        break;
-                    case "fill": 
-                        ScanFill({x: event.offsetX, y: event.offsetY},doodleCanvas, doodleCanvas.Ctx, );
-                        sendwhole()
-                        break;
-                }
+            
+            //online canvas
+            canvas.addEventListener('tip', function(event){
+                if(isHost)
+                    socket.emit('canvas-data', {
+                        action: 'tip',
+                        data: {
+                            colorIndex: event.colorIndex,
+                            point: event.point
+                        }
+                    });
             })
-            doodleCanvas.addEventListener('mousemove', function(event){
-                DRAW.drawing(doodleCanvas, doodleCanvas.Ctx, {x: event.offsetX, y: event.offsetY});
-                sendwhole()
+            canvas.addEventListener('line', function(event){
+                if(isHost)
+                    socket.emit('canvas-data', {
+                        action: 'line',
+                        data: {
+                            colorIndex: event.colorIndex,
+                            point: event.point
+                        }
+                    });
             })
-            doodleCanvas.addEventListener('mouseup', function(event){
-                DRAW.end(doodleCanvas, doodleCanvas.Ctx);
+            canvas.addEventListener('fill', function(event){
+                if(isHost)
+                    socket.emit('canvas-data', {
+                        action: 'fill',
+                        data: {
+                            colorIndex: event.colorIndex,
+                            point: event.point
+                        }
+                    });
             })
 
-            socket.on('canvas-data', (data) => {
-                let image = new Image();
-                image.src = data.base64;
-                image.onload = () => {
-                    doodleCanvas.Ctx.drawImage(image, 0, 0)
+            socket.on('canvas-data', (canvasData) => {
+                console.log("receiving canvas-data")
+                const {action, data} = canvasData;
+                doodleCanvas.setStates({
+                    colorIndex: data.colorIndex,
+                })
+                switch (action){
+                    case 'tip': 
+                        doodleCanvas.DRAW.tip(data.point)
+                        break;
+                    case 'line': 
+                        doodleCanvas.DRAW.line(data.point);
+                        break;
+                    case 'fill':
+                        doodleCanvas.DRAW.scanfill(data.point);
+                        break;
                 }
             })
-            function sendwhole(){
-                //cache current data - $$test how fast sending base64 thru network
-                let base64 = doodleCanvas.toDataURL();
-                socket.emit("canvas-data", {
-                    base64: base64
-                })
-            }
         }
     </script>
 

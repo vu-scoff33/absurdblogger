@@ -9,8 +9,11 @@ function main(IO){
             socket.roomId = roomId; //one room only
             socket.join(roomId);
             socket.name = name;
-            if(!GameroomsController[roomId])
-                GameroomsController[roomId] = {clients: []}
+            if(!GameroomsController[roomId]){
+                GameroomsController[roomId] = {clients: []};
+
+            }
+            if(!GameroomsController[roomId].clients.length)  socket.emit('host-assigned')
             GameroomsController[roomId].clients.push(socket);
             IO.to(roomId).emit('user-joined', {
                 //$$here is a great chance to ruminate about the why. Should I send in parts or whole / can clients assemble on their own
@@ -25,11 +28,15 @@ function main(IO){
                 sender: sender
             })
         })
-        socket.on('canvas-data', (data) => {
-            let {base64} = data; 
+        socket.on('canvas-data', (canvasdata) => {
+            const {action, data} = canvasdata;
             socket.to(socket.roomId).emit('canvas-data', {
-                base64: base64
-            })
+                action: action,
+                data: {
+                    colorIndex: data.colorIndex, 
+                    point: data.point
+                }
+            })//construct on their own, require each to be all in sync
         })
         socket.on('disconnect', () => {
             console.log("Socket disconnect")
