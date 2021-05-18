@@ -122,7 +122,6 @@ function enterLobby(name){
     })
     socket.on("message", (data) => {
         let {sender, text} = data;
-        console.log("do i receive the data from myself")
         appendText(sender, text)
     })
     socket.on("canvas-data", (data) => {
@@ -159,9 +158,12 @@ function enterLobby(name){
         //scale to standard ratio 
         let {x, y} = point;
         return {
-            x: x / SCALE,
-            y: y / SCALE
+            x: Math.round(x / SCALE),
+            y: Math.round(y / SCALE) 
         }
+        //$@@@ why is transmitting floats to server so damn slow
+        //to-read   http://buildnewgames.com/optimizing-websockets-bandwidth/
+        //note: firefox is also incredibly faster than chrome even in case of float-data
     }
     function translateFromBase(point){
         let {x, y} = point;

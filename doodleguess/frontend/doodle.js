@@ -101,6 +101,11 @@ const DOODLEme = function(canvas, options){
             }
         },
         scanfill: function(Point, captureEvents){
+            if(captureEvents){
+                this.penEvents['fill'].colorIndex = UIstates.colorIndex;
+                this.penEvents['fill'].point = Point;
+                canvas.dispatchEvent(this.penEvents['fill'])
+            }
             const fillColor = colorsList[UIstates.colorIndex];
             let imageData = ctx.getImageData(0, 0, width, height);
             let data = imageData.data;
@@ -165,14 +170,7 @@ const DOODLEme = function(canvas, options){
                 parentRx = rx;
                 parentY = node.y;
             }
-
             ctx.putImageData(imageData, 0, 0);
-            //##only emit events after synchronous expensive operation
-            if(captureEvents){
-                this.penEvents['fill'].colorIndex = UIstates.colorIndex;
-                this.penEvents['fill'].point = Point;
-                canvas.dispatchEvent(this.penEvents['fill'])
-            }
         }, 
         clear: function(captureEvents){
             if(captureEvents)
@@ -233,7 +231,7 @@ const DOODLEme = function(canvas, options){
     }
     function removeEvents(){
         for(const [event, handler] of Object.entries(EVENTS_HANDLERS)){
-            canvas.removeEventListener('event', handler);
+            canvas.removeEventListener(event, handler);
         }
     }
     const wrappingupInit = (function(){
