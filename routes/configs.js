@@ -86,11 +86,4 @@ var chatController = require('../controllers/chatController');
 router.get('/admin-panel/talks', chatController.get_chatbox);
 
 
-//testing features
-router.use('/anidlelife/doodle', express.static('public/doodle'))
-router.get('/andidlelife/doodle', (req, res) => {
-    res.sendFile('index.html', {root: path.join(__dirname, '../public/doodle')})
-})
-
-
 module.exports = router;

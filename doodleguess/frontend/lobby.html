@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Doodle Guess!</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="doodleguess.css">
+</head>
+<body>
+    <div id="wrapper">
+        <div id="header">
+            timer
+        </div>
+        <div id="players-box">
+           Players Box
+        </div>
+        <div id="canvas-wrapper">
+            <div class="canvas-inner-modal">
+
+            </div>
+            <canvas></canvas>
+        </div>
+        <div id="tools-box">
+
+        </div>
+
+        <div id="chat-box">
+            <div class="messages">
+
+            </div>
+
+            <input type="text" placeholder="Guess, chat with your friends, or talk to yourself" />
+        </div>
+    </div>
+
+    <div id="required-entry-modal">
+        <div class="modal-content">
+            <h3>Choose your name: </h3>
+            <div class="modal-body">
+                <input type="text" />
+                <small>This field is required. Your parents gave you a name, at least respect them. </small>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript">
+        //game initialization, name & socket 
+        let entryModal = document.querySelector('#required-entry-modal');
+        let mainModal = entryModal.querySelector('.modal-content');
+        mainModal.querySelector('input').focus()
+        entryModal.onclick = function(event){
+            if(event.target !== mainModal && !(mainModal.contains(event.target)))
+                showError()
+        }
+        mainModal.querySelector('input').onkeydown = function(event){
+            if(event.keyCode === 13){
+                const val = this.value.trim();
+                if(!val || val === "")
+                    showError()    
+                else {
+                    completeRequiredModal();
+                    enterLobby(val)
+                    //$$to-do: save cookieSession for refresh cases
+                }
+            }
+        }
+
+        function completeRequiredModal(){
+            entryModal.classList.add("hide")
+        }
+        function showError(){
+            let error =  entryModal.querySelector('small');
+            error.classList.add('show');
+            setTimeout(function(){
+                error.classList.remove('show')
+            }, 3000);
+        }
+
+        const COLORS = [
+            [0, 0, 0, 255],
+            [255, 0, 0, 255],
+            [0, 255, 0, 255],
+            [0, 0, 255, 255],
+            [255, 255, 0, 255],
+            [255, 0, 255, 255],
+            [0, 255, 255, 255],
+            [255, 255, 255, 255]
+        ]
+    </script>
+
+    <script src="doodle.js"></script>
+    <script src="doodleguess.js"></script>
+</body>
+</html>

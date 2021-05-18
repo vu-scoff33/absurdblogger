@@ -13,9 +13,7 @@ module.exports = function(io){
     //all apps use the same channel
     var chatappNamespace = io.of('/wordsofwisdom');
     var maGameNamespace = io.of('/modernart');
-    var doodleGuessNamespace = io.of('/doodleguess');
 
-    require('./doodleGuess/index')(doodleGuessNamespace);
     require('./modernart/index')(maGameNamespace);
 
     SOCKETAPP_Chat(chatappNamespace)

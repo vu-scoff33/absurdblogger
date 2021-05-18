@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Doodle Guess!</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap');
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        #wrapper{
+            height: 100vh;
+            width: 100vw;
+            font-family: 'Indie Flower', cursive;
+            text-align: center;
+            padding: 40px;
+            background-image: linear-gradient(to right, #4b79a1, #283e51);
+        }
+        h1{
+            font-size: 2.5rem;
+        }
+        #options{
+            margin-top: 45px;
+            width: 60%;
+            margin-left: auto;
+            margin-right: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        #options div, #options input{
+            width: 100%;
+            display: block;
+            height: 40px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            background-color: white;
+            border: none;
+            border-bottom: 1px solid black;
+        }
+
+        #options > div{
+            cursor: pointer;
+        }
+        #options > div:hover{
+            background-color: rgb(216, 213, 213);
+        }
+        #options input::placeholder{
+            font-family: "Indie Flower", cursive;
+        }
+        #options small{
+            font-size: 1.2rem;
+            font-style: italic;
+            color: rgb(243, 31, 31);
+        }
+        .hide {
+            visibility: hidden;
+        }
+      
+    </style>
+</head>
+<body>
+    <div id="wrapper">
+        <h1>DOODLE GUESS!</h1> 
+        <div id="options">
+            <div id="create-lobby">Create</div>
+            <div id="join-lobby">Join</div>
+            <input class="hide" placeholder="Enter Lobby Id..." type="text" id="lobbyId" />
+            <small class="hide">Lobby doesn't exist. Please enter a valid Id, or create a new one. </small>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        let input = document.getElementById('lobbyId');
+        let error = document.querySelector('small')
+        document.getElementById('create-lobby').onclick = function(event){
+            fetch('create', {
+                method: "POST",
+                redirect: "follow"
+            }).then(res => {
+                window.location = res.url;
+            }).catch(err => {
+                console.log("Error occured, please kindly report to me.")
+            })
+        }
+        document.getElementById('join-lobby').onclick = function(event){
+            input.classList.toggle('hide')
+        }
+        input.onkeydown = function(event){
+            if(event.code === "Enter"){
+                const val = this.value;
+                if(val.length < 4)
+                    showError()
+                else{
+                    fetch(`${val}`, {
+                        method: 'GET',
+                        headers: {
+
+                        }
+                    }).then(res => {
+                        if(res.headers.get('content-type').indexOf('application/json') !== -1)
+                            return res.json()
+                        if(res.headers.get('content-type').indexOf('text/html') !== -1)
+                            window.location = `/anidlelife/doodleguess/${val}`
+                    }).then(data => {
+                        if(!data.success)   showError();
+                    }).catch(err => console.log(err))
+                }
+            }
+        }
+        function showError(){
+            error.classList.remove('hide');
+            setTimeout(() => error.classList.add('hide'), 4000)
+        }
+    </script>
+</body>
+</html>

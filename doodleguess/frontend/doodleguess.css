@@ -1,0 +1,155 @@
+@import url('https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    position: relative;
+}
+
+#wrapper{
+    width: 100vw;
+    height: 100vh;
+    padding: 10px;
+    background-image: linear-gradient(to right, #4b79a1, #283e51);
+    font-family: "Indie Flower", cursive;
+    display: grid;
+    
+    grid-template-columns: 15% auto 20%;
+    grid-template-rows: 40px 80% auto;
+    grid-gap: 5px;
+}
+
+
+#header{
+    grid-row: 1 / 2;
+    grid-column: 1 / 4;
+    background-color: white;
+}
+#canvas-wrapper{
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+    padding: 0;
+    background: transparent;
+    text-align: center;
+}
+#canvas-wrapper canvas{
+    height: 100%;
+    z-index: 50;
+}
+#players-box{
+    grid-row: 2 / 3;
+    grid-column: 1;
+    background-color: white;
+}
+
+/* chatbox */
+#chat-box{
+    grid-row: 2 / 3;
+    grid-column: 3 / 4;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+}
+#chat-box .messages {
+    overflow: auto;
+    flex-grow: 1;
+    border-bottom: 1px solid black;
+    width: 100%;
+}
+
+#chat-box input{
+    width: 100%;
+    height: 35px;
+}
+#chat-box input::placeholder{
+    font-size: 10px;
+}
+
+/* tools box */
+#tools-box{
+    grid-column: 2 / 3;
+    height: fit-content;
+    width: fit-content;
+    display: flex;
+    justify-self: center;
+    background: transparent !important;
+}
+#tools-box button.color-button{
+    width: 30px; 
+    height: 30px;
+    border: 1px solid black;
+    margin-right: 3px;
+}
+#tools-box button.color-button.picked{
+    outline: black dashed 2px;
+    outline-offset: 1px;
+}
+#tools-box button.pen-button{
+    width: fit-content;
+    padding-left: 5px;
+    padding-right: 5px;
+    height: 30px;
+}
+/* second last child is bucket, may need to add classname in the future */
+.pen-button:nth-last-child(2){
+    margin-left: 40px;
+    margin-right: 4px;
+    outline: none;
+}
+.pen-button:nth-last-child(2).picked{
+    opacity: 0.4;
+}
+
+
+
+/* name modal */
+#required-entry-modal{
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 30;
+}
+#required-entry-modal .modal-content{
+    width: 400px; 
+    height: 150px;
+    background-color: white;
+    border: 1px solid rgb(27, 43, 192);
+    box-shadow: 0 0 6px rgb(247, 241, 241);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    padding: 10px;
+}
+#required-entry-modal h3{
+    font-size: 30px
+}
+#required-entry-modal .modal-body{
+    width: 100%;
+    margin-top: 20px;
+}
+#required-entry-modal .modal-body input{
+    display: block;
+    width: 100%;
+    height: 30px;
+    border: 1px solid black;
+}
+#required-entry-modal small{
+    font-style: italic;
+    color: rgb(231, 14, 14);
+    visibility: hidden;
+}
+#required-entry-modal small.show{
+    visibility: visible;
+}
+#required-entry-modal.hide {
+    visibility: hidden;
+}

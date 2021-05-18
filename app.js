@@ -40,18 +40,18 @@ connection.on('connected', () => {
 connection.on('error', () => {
     console.log('Database Connection Error.')
 })
-
-
-//applications routes
-var routes = require('./routes/configs.js');
-app.use('/', routes);
-
-
-
 const httpServer = app.listen(app.get('port'), () => {
     console.log(`Server starts on port ${app.get('port')}`);
 }); 
 
+
 var io = require('socket.io')(httpServer);
 require('./socketio/index')(io);
+//applications routes
+
+var routes = require('./routes/configs.js');
+app.use('/', routes);
+
+var doodleguessRoutes = require('./doodleguess/index')(io);
+app.use('/anidlelife/doodleguess', doodleguessRoutes)
 

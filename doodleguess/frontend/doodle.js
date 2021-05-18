@@ -36,7 +36,7 @@ const DOODLEme = function(canvas, options){
         if(Object.keys(cursorstyleMappers).indexOf(pen) === -1)  
             throw new Error("Available states consist only of 'stroke', 'fill', 'disabled'")
         if(colorIndex > colorsList.length)
-            throw new Error("Index exceeds colors list")
+            colorIndex = colorsList.length;
         
         UIstates.pen = pen;
         UIstates.colorIndex = colorIndex;
@@ -75,36 +75,36 @@ const DOODLEme = function(canvas, options){
             'line': new Event('line', {bubbles: false}),
             'fill': new Event('fill', {bubbles: false})
         },
-        tip: function(Point){
+        tip: function(Point, captureEvents){
             const {x, y} = Point;
             ctx.beginPath();
             ctx.moveTo(x, y);
             ctx.fillStyle = toRgba(colorsList[UIstates.colorIndex]);
             ctx.fillRect(x - Math.floor(lineWidth / 2), y - Math.floor(lineWidth / 2), lineWidth, lineWidth)
 
-            this.penEvents['tip'].colorIndex = UIstates.colorIndex;
-            this.penEvents['tip'].point = Point;
-            canvas.dispatchEvent(this.penEvents['tip'])
+            if(captureEvents){
+                this.penEvents['tip'].colorIndex = UIstates.colorIndex;
+                this.penEvents['tip'].point = Point;
+                canvas.dispatchEvent(this.penEvents['tip'])
+            }
         },
-        line: function(Point){
+        line: function(Point, captureEvents){
             const {x, y} = Point;
             ctx.strokeStyle = toRgba(colorsList[UIstates.colorIndex])
             ctx.lineTo(x, y);
             ctx.stroke();
 
-            this.penEvents['line'].colorIndex = UIstates.colorIndex;
-            this.penEvents['line'].point = Point;
-            canvas.dispatchEvent(this.penEvents['line'])
+            if(captureEvents){
+                this.penEvents['line'].colorIndex = UIstates.colorIndex;
+                this.penEvents['line'].point = Point;
+                canvas.dispatchEvent(this.penEvents['line'])
+            }
         },
-        scanfill: function(Point){
-            this.penEvents['fill'].colorIndex = UIstates.colorIndex;
-            this.penEvents['fill'].point = Point;
-            canvas.dispatchEvent(this.penEvents['fill'])
-
+        scanfill: function(Point, captureEvents){
             const fillColor = colorsList[UIstates.colorIndex];
             let imageData = ctx.getImageData(0, 0, width, height);
             let data = imageData.data;
-            let seedX = Point.x, seedY = Point.y;
+            let seedX = Math.round(Point.x), seedY = Math.round(Point.y); //rounding is important for multi-scale canvas
             let targetColor = UTILS.getPixel({x: seedX, y: seedY}, data).color;
             if(UTILS.isColorEqual(fillColor, targetColor)) 
                 return;
@@ -167,8 +167,16 @@ const DOODLEme = function(canvas, options){
             }
 
             ctx.putImageData(imageData, 0, 0);
+            //##only emit events after synchronous expensive operation
+            if(captureEvents){
+                this.penEvents['fill'].colorIndex = UIstates.colorIndex;
+                this.penEvents['fill'].point = Point;
+                canvas.dispatchEvent(this.penEvents['fill'])
+            }
         }, 
-        clear: function(){
+        clear: function(captureEvents){
+            if(captureEvents)
+                canvas.dispatchEvent(new Event("clear", {bubbles: false}))
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, width, height)
         }
@@ -203,16 +211,16 @@ const DOODLEme = function(canvas, options){
             switch (UIstates.pen){
                 case 'stroke': 
                     canvas.isdrawing = true;
-                    DRAW.tip({x: event.offsetX, y: event.offsetY});
+                    DRAW.tip({x: event.offsetX, y: event.offsetY}, true);
                     break;
                 case 'fill': 
-                    DRAW.scanfill({x: event.offsetX, y: event.offsetY});
+                    DRAW.scanfill({x: event.offsetX, y: event.offsetY}, true);
                     break;
             }
         }
         EVENTS_HANDLERS['mousemove'] = function(event){
             if(canvas.isdrawing){
-                DRAW.line({x: event.offsetX, y: event.offsetY});
+                DRAW.line({x: event.offsetX, y: event.offsetY}, true);
             }
         }
         EVENTS_HANDLERS['mouseup'] = EVENTS_HANDLERS['mouseupoutside'] = function(event){
