@@ -1,3 +1,2 @@
 Beginner Personal Project. A simple cms app packed with egoistical beta features...
 
-Deployed App on https://absurdblogger.herokuapp.com Application is still being developed.
